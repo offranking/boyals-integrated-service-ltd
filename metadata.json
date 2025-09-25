@@ -1,0 +1,5 @@
+{
+  "name": "Boyal Integrated Service",
+  "description": "A responsive website for Boyal Integrated Service, designed for social engagements. It features pages for home, about, services, booking, and contact, all managed within a single-page React application.",
+  "requestFramePermissions": []
+}

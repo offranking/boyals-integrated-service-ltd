@@ -1,0 +1,1 @@
+export type Page = 'home' | 'about' | 'services' | 'serviceDetail' | 'gallery' | 'booking' | 'contact';

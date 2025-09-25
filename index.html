@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-to" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Boyal Integrated Service</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+      @keyframes fade-in-down {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes fade-in-up {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fade-in-down {
+        animation: fade-in-down 0.6s ease-out forwards;
+      }
+      .animate-fade-in-up {
+        animation: fade-in-up 0.6s ease-out forwards;
+      }
+      /* New fade-in animation for modal */
+      @keyframes fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      .animate-fade-in {
+        animation: fade-in 0.3s ease-out forwards;
+      }
+      /* New animation for content sections */
+      @keyframes page-content-enter {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-page-content-enter {
+        animation: page-content-enter 0.7s ease-out forwards;
+      }
+      /* New pulse animation for CTA */
+      @keyframes pulse {
+        0%, 100% {
+          transform: scale(1);
+          box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7);
+        }
+        50% {
+          transform: scale(1.05);
+          box-shadow: 0 0 0 10px rgba(220, 38, 38, 0);
+        }
+      }
+      .animate-pulse-cta {
+        animation: pulse 2s infinite;
+      }
+      /* New background zoom animation */
+      @keyframes bg-zoom {
+        from { background-size: 100%; }
+        to { background-size: 110%; }
+      }
+      .group:hover .bg-zoom {
+        animation: bg-zoom 6s ease-out forwards;
+      }
+      /* New hero background zoom animation */
+      @keyframes hero-bg-zoom {
+        from { transform: scale(1); }
+        to { transform: scale(1.08); }
+      }
+      .animate-hero-bg-zoom {
+        animation: hero-bg-zoom 40s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite alternate;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "react": "https://aistudiocdn.com/react@^19.1.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.544.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
