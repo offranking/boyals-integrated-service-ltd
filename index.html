@@ -72,6 +72,12 @@
       .animate-hero-bg-zoom {
         animation: hero-bg-zoom 40s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite alternate;
       }
+      /* New staggered animation */
+      .stagger-in > * {
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fade-in-up 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+      }
     </style>
   <script type="importmap">
 {
@@ -83,7 +89,6 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
 </head>
   <body>
     <div id="root"></div>

@@ -1,6 +1,6 @@
 import React, { useState, FC, ReactNode, useRef, useEffect } from 'react';
 import { Page } from './types';
-import { Music, MonitorSpeaker, Mic, Headphones, Cable, Menu, X, Facebook, Twitter, Instagram, Linkedin, PartyPopper, Phone, Mail, MapPin, Quote, CheckCircle, PlayCircle, MessageSquare, ClipboardList, Play, Award, Heart, Star, Users, Pause, Link, Share2, Volume2, Volume1, VolumeX } from 'lucide-react';
+import { Music, MonitorSpeaker, Mic, Headphones, Cable, Menu, X, Facebook, Twitter, Instagram, Linkedin, PartyPopper, Phone, Mail, MapPin, Quote, CheckCircle, PlayCircle, MessageSquare, ClipboardList, Play, Award, Heart, Star, Users, Pause, Link, Share2, Volume2, Volume1, VolumeX, ChevronLeft, ChevronRight, Speaker } from 'lucide-react';
 
 // ~~~ TYPE DEFINITIONS ~~~
 interface AppState {
@@ -159,11 +159,11 @@ const artistShowcases: ArtistShowcase[] = [
         genre: 'Afrobeat',
     },
     {
-        artistName: "Luna Bloom",
+        artistName: "Tems",
         albumArt: "https://upload.wikimedia.org/wikipedia/commons/e/ec/Tems_on_NdaniTV_Sessions_-cropped.png",
         trackTitle: "King Around Here",
         trackUrl: "https://cdn.pixabay.com/download/audio/2022/08/04/audio_2d02511475.mp3",
-        description: "We worked with Luna to craft the synth-heavy soundscape of her breakout EP. Our team handled mixing and mastering to bring her ethereal vision to life.",
+        description: "We worked with Tems to craft the synth-heavy soundscape of her breakout EP. Our team handled mixing and mastering to bring her ethereal vision to life.",
         genre: 'Electronic',
     },
     {
@@ -235,7 +235,7 @@ const NavLink: FC<NavLinkProps> = ({ page, appState, navigateTo, children, isMob
 const ServicesHighlightSection: FC<{ navigateTo: (page: Page, service?: string | null) => void }> = ({ navigateTo }) => (
   <Section id="home-services" className="bg-gray-50">
     <div className="text-center mb-16">
-      <h2 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">Experience the Difference</h2>
+      <h2 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">Our Signature Services</h2>
       <p className="text-red-600 mt-4 text-lg">Comprehensive Solutions for Unforgettable Events</p>
     </div>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -277,19 +277,19 @@ const ServicesHighlightSection: FC<{ navigateTo: (page: Page, service?: string |
 
 const ProcessSection: FC = () => {
     const steps = [
-        { icon: MessageSquare, title: "Consultation", description: "We start by understanding your vision, goals, and requirements for the event." },
+        { icon: MessageSquare, title: "Consultation", description: "We start by understanding your vision, goals, and requirements." },
         { icon: ClipboardList, title: "Planning & Design", description: "Our experts craft a detailed plan, from technical specs to creative design." },
         { icon: Play, title: "Flawless Execution", description: "Our professional crew brings the plan to life with precision and passion." },
-        { icon: Award, title: "Unforgettable Success", description: "We deliver a memorable experience that exceeds expectations and wows your audience." },
+        { icon: Award, title: "Unforgettable Success", description: "We deliver a memorable experience that exceeds all expectations." },
     ];
 
     return (
         <Section id="process">
             <div className="text-center mb-16">
-                <h2 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">How It Works</h2>
+                <h2 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">Your Vision, Our Blueprint</h2>
                 <p className="text-red-600 mt-4 text-lg">Our Simple Path to Your Perfect Event</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                 {steps.map((step, index) => (
                     <div key={step.title} className="text-center p-8 bg-white rounded-xl shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 ease-in-out transform border-t-4 border-red-200 hover:border-red-500">
                         <div className="flex items-center justify-center h-16 w-16 rounded-full bg-red-100 text-red-600 mx-auto mb-6">
@@ -304,29 +304,77 @@ const ProcessSection: FC = () => {
     );
 };
 
-const TestimonialsSection: FC = () => (
-  <Section id="testimonials" className="bg-gray-50">
-    <div className="text-center mb-16">
-      <h2 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">What Our Clients Say</h2>
-      <p className="text-red-600 mt-4 text-lg">Stories of Success from Events Like Yours</p>
-    </div>
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {testimonials.map((testimonial) => (
-        <div key={testimonial.author} className="bg-white rounded-xl shadow-lg p-8 flex flex-col hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 ease-in-out transform">
-          <Quote className="w-10 h-10 text-red-300 mb-4" aria-hidden="true"/>
-          <p className="text-gray-600 italic mb-6 flex-grow">"{testimonial.quote}"</p>
-          <div className="flex items-center mt-auto">
-            <img className="w-14 h-14 rounded-full mr-4" src={testimonial.avatar} alt={`Avatar of ${testimonial.author}`} />
-            <div>
-              <p className="font-bold text-gray-900">{testimonial.author}</p>
-              <p className="text-sm text-gray-500">{testimonial.event}</p>
-            </div>
-          </div>
+const TestimonialsSection: FC = () => {
+    const [activeIndex, setActiveIndex] = useState(0);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setActiveIndex((current) => (current === testimonials.length - 1 ? 0 : current + 1));
+        }, 5000);
+        return () => clearInterval(interval);
+    }, []);
+
+    const goToSlide = (index: number) => {
+        setActiveIndex(index);
+    };
+
+    const nextSlide = () => {
+        setActiveIndex((current) => (current === testimonials.length - 1 ? 0 : current + 1));
+    };
+
+    const prevSlide = () => {
+        setActiveIndex((current) => (current === 0 ? testimonials.length - 1 : current - 1));
+    };
+    
+    if (!testimonials.length) return null;
+
+    return (
+      <Section id="testimonials" className="bg-gray-50">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">What Our Clients Say</h2>
+          <p className="text-red-600 mt-4 text-lg">Stories of Success from Events Like Yours</p>
         </div>
-      ))}
-    </div>
-  </Section>
-);
+        <div className="relative max-w-3xl mx-auto">
+            <div className="overflow-hidden relative min-h-[350px] flex items-center justify-center">
+                {testimonials.map((testimonial, index) => (
+                    <div
+                        key={index}
+                        className={`transition-opacity duration-700 ease-in-out absolute w-full ${activeIndex === index ? 'opacity-100' : 'opacity-0'}`}
+                    >
+                        {activeIndex === index && (
+                             <div className="bg-white rounded-xl shadow-lg p-8 flex flex-col text-center animate-fade-in">
+                                <img className="w-20 h-20 rounded-full mx-auto mb-4" src={testimonial.avatar} alt={`Avatar of ${testimonial.author}`} />
+                                <Quote className="w-10 h-10 text-red-300 mb-4 mx-auto" aria-hidden="true"/>
+                                <p className="text-gray-600 italic text-lg mb-6 flex-grow">"{testimonial.quote}"</p>
+                                <div className="mt-auto">
+                                    <p className="font-bold text-xl text-gray-900">{testimonial.author}</p>
+                                    <p className="text-md text-gray-500">{testimonial.event}</p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                ))}
+            </div>
+             <button onClick={prevSlide} aria-label="Previous testimonial" className="absolute top-1/2 -left-4 md:-left-16 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500">
+                <ChevronLeft className="h-6 w-6 text-gray-700" />
+            </button>
+            <button onClick={nextSlide} aria-label="Next testimonial" className="absolute top-1/2 -right-4 md:-right-16 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500">
+                <ChevronRight className="h-6 w-6 text-gray-700" />
+            </button>
+            <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 flex space-x-2">
+                {testimonials.map((_, index) => (
+                    <button
+                        key={index}
+                        onClick={() => goToSlide(index)}
+                        aria-label={`Go to testimonial ${index + 1}`}
+                        className={`w-3 h-3 rounded-full transition-colors ${activeIndex === index ? 'bg-red-600' : 'bg-gray-300 hover:bg-gray-400'}`}
+                    ></button>
+                ))}
+            </div>
+        </div>
+      </Section>
+    );
+};
 
 const CtaSection: FC<{ navigateTo: (page: Page) => void }> = ({ navigateTo }) => (
   <section 
@@ -358,35 +406,104 @@ const CtaSection: FC<{ navigateTo: (page: Page) => void }> = ({ navigateTo }) =>
 
 
 const HomePage: FC<{ navigateTo: (page: Page, service?: string | null) => void }> = ({ navigateTo }) => {
+  const featuredArtist = artistShowcases[1];
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const togglePlay = () => {
+    if (audioRef.current) {
+        if (isPlaying) {
+            audioRef.current.pause();
+        } else {
+            audioRef.current.play();
+        }
+        setIsPlaying(!isPlaying);
+    }
+  };
+
+  const whyChooseUsFeatures = [
+    { icon: Award, title: "Unmatched Quality", description: "We use state-of-the-art equipment to deliver pristine audio and stunning visuals." },
+    { icon: Users, title: "Expert Team", description: "Our passionate professionals are dedicated to flawless execution and client satisfaction." },
+    { icon: Heart, title: "Custom Solutions", description: "Every event is unique. We tailor our services to match your specific vision and goals." },
+  ];
+
   return (
     <div className="animate-page-content-enter">
         <header 
-            className="relative h-[70vh] min-h-[500px] flex items-center justify-center text-white text-center px-4"
+            className="relative h-screen flex items-center justify-center text-white text-center px-4 overflow-hidden"
             role="banner"
         >
-            <div 
-                className="absolute inset-0 bg-cover bg-center animate-hero-bg-zoom" 
-                style={{ backgroundImage: "url('https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=2070&auto=format&fit=crop')" }}
-                aria-label="A music producer working at a mixing console in a professional recording studio."
-                role="img"
-            ></div>
-            <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/60 to-transparent"></div>
-            <div className="relative z-10 animate-fade-in-up">
-                <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-tight">Crafting Unforgettable <span className="text-red-500">Experiences</span></h1>
-                <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-gray-200">From intimate gatherings to large-scale productions, we provide the sound, vision, and expertise to make your event a stunning success.</p>
-                <div className="mt-10 flex flex-wrap justify-center gap-4">
+            <div className="absolute top-0 left-0 w-full h-full">
+                <video 
+                    className="w-full h-full object-cover" 
+                    src="https://videos.pexels.com/video-files/2022752/2022752-hd_1920_1080_30fps.mp4" 
+                    autoPlay 
+                    loop 
+                    muted 
+                    playsInline
+                    poster="https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=2070&auto=format&fit=crop"
+                />
+            </div>
+            <div className="absolute inset-0 bg-black/60"></div>
+            <div className="relative z-10 stagger-in">
+                <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-tight" style={{ animationDelay: '0.1s' }}>Crafting Unforgettable <span className="text-red-500">Experiences</span></h1>
+                <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-gray-200" style={{ animationDelay: '0.3s' }}>From intimate gatherings to large-scale productions, we provide the sound, vision, and expertise to make your event a stunning success.</p>
+                <div className="mt-10 flex flex-wrap justify-center gap-4" style={{ animationDelay: '0.5s' }}>
                     <button onClick={() => navigateTo('services')} className="flex items-center gap-2 bg-red-600 text-white font-bold py-3 px-8 rounded-full hover:bg-red-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-red-500 focus:ring-opacity-50 animate-pulse-cta">
-                        <PlayCircle size={20} /> Our Services
+                        <Speaker size={20} /> Our Services
                     </button>
                     <button onClick={() => navigateTo('gallery')} className="flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white font-bold py-3 px-8 rounded-full hover:bg-white/30 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-white focus:ring-opacity-50">
-                        <CheckCircle size={20} /> View Our Work
+                        <PlayCircle size={20} /> View Our Work
                     </button>
                 </div>
             </div>
         </header>
         <main>
+            <Section id="why-us">
+                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                    {whyChooseUsFeatures.map((feature, index) => (
+                        <div key={index} className="p-8">
+                            <div className="flex items-center justify-center h-16 w-16 rounded-full bg-red-100 text-red-600 mx-auto mb-6">
+                                <feature.icon className="h-8 w-8" />
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">{feature.title}</h3>
+                            <p className="text-gray-600">{feature.description}</p>
+                        </div>
+                    ))}
+                </div>
+            </Section>
             <ServicesHighlightSection navigateTo={navigateTo} />
             <ProcessSection />
+
+            <Section id="featured-work" className="bg-gray-900 text-white">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div className="prose prose-invert prose-lg max-w-none">
+                        <p className="text-red-500 font-semibold tracking-wide">Featured Work</p>
+                        <h2 className="text-4xl font-extrabold text-white sm:text-5xl">{featuredArtist.trackTitle}</h2>
+                        <p className="text-lg text-red-400">{featuredArtist.artistName}</p>
+                        <p className="text-gray-300">{featuredArtist.description}</p>
+                        <button onClick={() => navigateTo('about')} className="mt-4 inline-flex items-center gap-2 text-white font-bold py-3 px-6 rounded-full bg-red-600 hover:bg-red-700 transition-colors">
+                            More Collaborations <span aria-hidden="true">&rarr;</span>
+                        </button>
+                    </div>
+                    <div className="flex justify-center items-center">
+                        <div className="relative w-full max-w-sm">
+                            <img src={featuredArtist.albumArt} alt={`Album art for ${featuredArtist.trackTitle}`} className="w-full rounded-lg shadow-2xl" />
+                            <div className="absolute -bottom-8 w-11/12 left-1/2 -translate-x-1/2 bg-white/20 backdrop-blur-lg rounded-lg p-4 flex items-center space-x-4">
+                                <audio ref={audioRef} src={featuredArtist.trackUrl} onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} />
+                                <button onClick={togglePlay} aria-label={isPlaying ? 'Pause' : 'Play'} className="bg-red-600 text-white rounded-full p-3 hover:bg-red-700 shadow-md flex-shrink-0">
+                                    {isPlaying ? <Pause size={20} /> : <Play size={20} />}
+                                </button>
+                                <div className="flex-grow">
+                                    <p className="font-bold text-white truncate">{featuredArtist.trackTitle}</p>
+                                    <p className="text-sm text-gray-200">{featuredArtist.artistName}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </Section>
+            
             <TestimonialsSection />
             <CtaSection navigateTo={navigateTo} />
         </main>
