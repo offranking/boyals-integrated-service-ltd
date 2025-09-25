@@ -115,8 +115,8 @@ const services: Service[] = [
     description: 'Capture your event with pristine multi-track recording.',
     longDescription: "Preserve the magic of your live performance forever. We provide professional multi-track recording services that capture every nuance of your event, delivering high-quality audio ready for post-production, broadcast, or a live album release.",
     features: ["High-Fidelity Multi-track Capture", "Redundant Recording Systems", "Post-Event Mixing & Mastering", "Broadcast Feeds"],
-    image: "https://media.sweetwater.com/m/insync/2023/07/Recording-Live-Performance-How-to-Make-Great-Live-Recordings-on-a-Budget.jpg?width=1024&height=536&fit=cover",
-    highlightImage: "https://media.sweetwater.com/m/insync/2023/07/Recording-Live-Performance-How-to-Make-Great-Live-Recordings-on-a-Budget.jpg?width=1024&height=536&fit=cover",
+    image: "https://picsum.photos/seed/recording/1200/800",
+    highlightImage: "https://picsum.photos/seed/recording-highlight/800/600",
     category: 'Production',
   },
   { 
@@ -125,8 +125,8 @@ const services: Service[] = [
     description: 'Complete event planning and coordination.',
     longDescription: "Beyond the technical, we offer comprehensive event planning services. From venue selection to vendor coordination, we manage the details so you can focus on your guests and enjoy a perfectly executed social engagement.",
     features: ["Venue Sourcing", "Vendor Management", "Event Theming & Design", "On-site Coordination"],
-    image: "https://content.jdmagicbox.com/v2/comp/mumbai/d9/022pxx22.xx22.180610012042.l4d9/catalogue/hiteventz-andheri-east-mumbai-knrpxmfsls.jpg",
-    highlightImage: "https://content.jdmagicbox.com/v2/comp/mumbai/d9/022pxx22.xx22.180610012042.l4d9/catalogue/hiteventz-andheri-east-mumbai-knrpxmfsls.jpg",
+    image: "https://picsum.photos/seed/planning/1200/800",
+    highlightImage: "https://picsum.photos/seed/planning-highlight/800/600",
     category: 'Planning',
   },
 ];
@@ -974,6 +974,7 @@ const GalleryPage: FC = () => {
 
 const BookingPage: FC = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [selectedService, setSelectedService] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -991,7 +992,10 @@ const BookingPage: FC = () => {
                         <h2 className="text-2xl font-bold text-gray-900 mb-2">Thank You!</h2>
                         <p className="text-gray-600 mb-6">Your booking request has been sent successfully. We will get back to you shortly to confirm the details.</p>
                         <button
-                            onClick={() => setIsSubmitted(false)}
+                            onClick={() => {
+                                setIsSubmitted(false);
+                                setSelectedService('');
+                            }}
                             className="bg-red-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-700 transition-all duration-300"
                         >
                             Submit Another Request
@@ -1004,6 +1008,23 @@ const BookingPage: FC = () => {
                             <input type="email" placeholder="Email Address" aria-label="Email Address" required className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"/>
                             <input type="tel" placeholder="Phone Number" aria-label="Phone Number" className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"/>
                             <input type="text" placeholder="Event Type (e.g., Concert, Wedding)" aria-label="Event Type" className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"/>
+                        </div>
+                        <div className="mb-6">
+                            <select
+                                name="service"
+                                aria-label="Service Type"
+                                required
+                                value={selectedService}
+                                onChange={(e) => setSelectedService(e.target.value)}
+                                className={`w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors ${selectedService ? 'text-gray-900' : 'text-gray-500'}`}
+                            >
+                                <option value="" disabled>Select a Service...</option>
+                                {services.map((service) => (
+                                    <option key={service.title} value={service.title} className="text-gray-900">
+                                        {service.title}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
                         <div className="mb-6">
                              <input type="date" aria-label="Event Date" required className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-500"/>
