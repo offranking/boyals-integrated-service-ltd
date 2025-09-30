@@ -1,11 +1,13 @@
 import React, { useState, FC, ReactNode, useRef, useEffect } from 'react';
 import { Page } from './types';
-import { Music, MonitorSpeaker, Mic, Headphones, Cable, Menu, X, Facebook, Twitter, Instagram, Linkedin, PartyPopper, Phone, Mail, MapPin, Quote, CheckCircle, PlayCircle, MessageSquare, ClipboardList, Play, Award, Heart, Star, Users, Pause, Link, Share2, Volume2, Volume1, VolumeX, ChevronLeft, ChevronRight, Speaker } from 'lucide-react';
+import { Music, MonitorSpeaker, Mic, Headphones, Cable, Menu, X, Facebook, Twitter, Instagram, Linkedin, PartyPopper, Phone, Mail, MapPin, Quote, CheckCircle, PlayCircle, MessageSquare, ClipboardList, Play, Award, Heart, Star, Users, Pause, Link, Share2, Volume2, Volume1, VolumeX, ChevronLeft, ChevronRight, Speaker, Send, ShoppingCart, Info } from 'lucide-react';
+import { GoogleGenAI, Chat } from '@google/genai';
 
 // ~~~ TYPE DEFINITIONS ~~~
 interface AppState {
   currentPage: Page;
   currentService: string | null;
+  currentProduct: string | null;
 }
 
 interface NavLinkProps {
@@ -57,6 +59,26 @@ interface ArtistShowcase {
   genre: 'Pop' | 'Rock' | 'Electronic' | 'Hip-Hop' | 'Afrobeat';
 }
 
+interface ChatMessage {
+  id: number;
+  text: string;
+  sender: 'user' | 'ai';
+  error?: boolean;
+}
+
+type ProductCategory = 'Microphones' | 'Speakers' | 'Mixers' | 'Lighting';
+
+interface Product {
+    id: number;
+    name: string;
+    category: ProductCategory;
+    brand: string;
+    image: string;
+    description: string;
+    longDescription: string;
+    specs: { key: string; value: string }[];
+}
+
 
 // ~~~ HELPER DATA ~~~
 const navLinks: { page: Page; title: string }[] = [
@@ -64,6 +86,7 @@ const navLinks: { page: Page; title: string }[] = [
   { page: 'about', title: 'About' },
   { page: 'services', title: 'Services' },
   { page: 'gallery', title: 'Gallery' },
+  { page: 'products', title: 'Products'},
   { page: 'booking', title: 'Booking' },
   { page: 'contact', title: 'Contact' },
 ];
@@ -128,6 +151,99 @@ const services: Service[] = [
     image: "https://picsum.photos/seed/planning/1200/800",
     highlightImage: "https://picsum.photos/seed/planning-highlight/800/600",
     category: 'Planning',
+  },
+];
+
+const products: Product[] = [
+  {
+    id: 1,
+    name: "Drums Chair",
+    category: 'Microphones',
+    brand: "SoundWave",
+    image: "/public/images/products/WhatsApp Image 2025-09-26 at 3.56.16 PM.jpeg",
+    description: "Studio-grade condenser microphone for crystal-clear vocal recording.",
+    longDescription: "High Load Capacity: We add three double-layer thickened metal support bars to the base to provide additional support for the entire drum throne. The height of the drum stool is about 20.8inch, with the load capacity up to 370lbs. It is very suitable for both children and adults",
+    specs: [
+      { key: "Frame Material", value: "Metal" },
+      { key: "Item Weight", value: "4 Pounds" },
+      { key: "Shape", value: "Round" },
+      { key: "Seat Material Type", value: "Metal" }
+    ]
+  },
+  {
+    id: 2,
+    name: "Shure SLXD Dual",
+    category: 'Microphones',
+    brand: "AudioPro",
+    image: "/public/images/products/WhatsApp Image 2025-09-26 at 3.56.16 PM (1).jpeg",
+    description: "Powerful and portable 15-inch active PA speaker for live events.",
+    longDescription: "Featuring two legendary SM58® Cardioid Dynamic Microphone capsules on SLXD2 handheld wireless transmitters, the SLXD24D/SM58 provides transparent digital audio and rock-solid RF stability for lecture halls and live performances.",
+    specs: [
+        { key: "Microphone Type", value: "Dynamic" },
+        { key: "Configuration", value: "Dual" },
+        { key: "Connectivity", value: "Wireless" },
+        { key: "Performance", value: "Stable" }
+    ]
+  },
+  {
+    id: 3,
+    name: "Shure SM57",
+    category: 'Mixers',
+    brand: "MixMasters",
+    image: "/public/images/products/WhatsApp Image 2025-09-26 at 3.56.16 PM (2).jpeg",
+    description: "A versatile 24-channel analog mixing desk for studio and live use.",
+    longDescription: "The StudioMix console brings classic analog warmth and modern flexibility to your setup. Featuring high-quality preamps on every channel, a comprehensive EQ section, and flexible routing options, it's the heart of any professional audio environment.",
+    specs: [
+        { key: "Channels", value: "24 (16 mono, 4 stereo)" },
+        { key: "Preamps", value: "20 High-Headroom Preamps" },
+        { key: "EQ", value: "3-band with sweepable mid" },
+        { key: "Connectivity", value: "USB Audio Interface" }
+    ]
+  },
+  {
+    id: 4,
+    name: "StageBeam Pro LED Par",
+    category: 'Lighting',
+    brand: "GlowFX",
+    image: "https://picsum.photos/seed/light1/600/600",
+    description: "Bright and dynamic LED par can for vibrant stage lighting.",
+    longDescription: "Illuminate your stage with the StageBeam Pro. This powerful LED fixture offers full RGBW color mixing, allowing for an endless spectrum of colors. DMX controllable and featuring sound-active modes, it's perfect for creating immersive lighting designs.",
+    specs: [
+        { key: "Light Source", value: "12 x 10W RGBW LEDs" },
+        { key: "Beam Angle", value: "25 degrees" },
+        { key: "Control", value: "DMX-512, Sound-Active" },
+        { key: "Power Consumption", value: "120W" }
+    ]
+  },
+  {
+    id: 5,
+    name: "Dynamic Vocal Mic DV58",
+    category: 'Microphones',
+    brand: "SoundWave",
+    image: "https://picsum.photos/seed/mic2/600/600",
+    description: "The industry-standard dynamic microphone for live vocals.",
+    longDescription: "Rugged, reliable, and sounding great on any voice, the DV58 is a legend on stages worldwide. Its cardioid pickup pattern isolates the main sound source while minimizing background noise, making it ideal for live performance.",
+    specs: [
+      { key: "Type", value: "Dynamic" },
+      { key: "Polar Pattern", value: "Cardioid" },
+      { key: "Frequency Response", value: "50Hz - 15kHz" },
+      { key: "Impedance", value: "150 ohm" }
+    ]
+  },
+  {
+    id: 6,
+    name: "SubBass 18\" Active Subwoofer",
+    category: 'Speakers',
+    brand: "AudioPro",
+    image: "https://picsum.photos/seed/speaker2/600/600",
+    description: "Feel the low-end thunder with this 18-inch powered subwoofer.",
+    longDescription: "Add powerful, tight, and clear low-frequency impact to your sound system. The SubBass 18 provides 1500W of earth-shaking power, perfect for live bands, DJs, and installations where deep bass is a must.",
+    specs: [
+        { key: "Power", value: "1500W Peak" },
+        { key: "Driver Size", value: "18-inch" },
+        { key: "Frequency Response", value: "35Hz - 150Hz" },
+        { key: "Max SPL", value: "134 dB" }
+    ]
   },
 ];
 
@@ -992,22 +1108,20 @@ const GalleryPage: FC = () => {
     const closeModal = () => setSelectedImage(null);
 
     useEffect(() => {
-        // This useEffect hook manages focus trapping for accessibility.
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') closeModal();
 
-            // Focus trap logic
             if (e.key === 'Tab' && modalRef.current) {
                 const focusableElements = modalRef.current.querySelectorAll<HTMLElement>('button');
                 const firstElement = focusableElements[0];
                 const lastElement = focusableElements[focusableElements.length - 1];
 
-                if (e.shiftKey) { // Shift + Tab
+                if (e.shiftKey) { 
                     if (document.activeElement === firstElement) {
                         lastElement.focus();
                         e.preventDefault();
                     }
-                } else { // Tab
+                } else { 
                     if (document.activeElement === lastElement) {
                         firstElement.focus();
                         e.preventDefault();
@@ -1018,10 +1132,8 @@ const GalleryPage: FC = () => {
 
         if (selectedImage) {
             document.addEventListener('keydown', handleKeyDown);
-            // Move focus to the modal when it opens
             modalRef.current?.focus();
         } else {
-            // Return focus to the image that opened the modal
             triggerRef.current?.focus();
         }
 
@@ -1089,9 +1201,147 @@ const GalleryPage: FC = () => {
     );
 };
 
-const BookingPage: FC = () => {
+const ProductsPage: FC<{ navigateTo: (page: Page, detailItem?: string | null) => void }> = ({ navigateTo }) => {
+    const categories: ProductCategory[] = ['Microphones', 'Speakers', 'Mixers', 'Lighting'];
+    const allCategories: ('All' | ProductCategory)[] = ['All', ...categories];
+    const [activeFilter, setActiveFilter] = useState<'All' | ProductCategory>('All');
+
+    const filteredProducts = products.filter(product => activeFilter === 'All' || product.category === activeFilter);
+
+    return (
+        <PageContent title="Our Products" subtitle="Professional-Grade Equipment for Sale or Rental">
+            <Section id="products-list" className="bg-gray-50">
+                <div className="flex justify-center mb-12">
+                    <div className="bg-white p-2 rounded-full shadow-md">
+                        {allCategories.map(category => (
+                            <button
+                                key={category}
+                                onClick={() => setActiveFilter(category)}
+                                aria-pressed={activeFilter === category}
+                                className={`px-4 sm:px-6 py-2 rounded-full text-sm sm:text-base font-medium transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 ${
+                                    activeFilter === category
+                                        ? 'bg-red-600 text-white shadow'
+                                        : 'bg-transparent text-gray-600 hover:bg-gray-100'
+                                }`}
+                            >
+                                {category}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {filteredProducts.map(product => (
+                        <div 
+                            key={product.id}
+                            className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col group transform hover:-translate-y-2 transition-transform duration-300"
+                        >
+                            <div className="relative h-64 overflow-hidden bg-gray-100">
+                                <img src={product.image} alt={product.name} className="w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-110" />
+                            </div>
+                            <div className="p-6 flex flex-col flex-grow">
+                                <p className="text-sm font-semibold text-red-600">{product.brand}</p>
+                                <h3 className="text-xl font-bold text-gray-900 mb-2">{product.name}</h3>
+                                <p className="text-gray-600 mb-4 flex-grow">{product.description}</p>
+                                <button
+                                    onClick={() => navigateTo('productDetail', product.name)}
+                                    className="mt-auto self-start font-semibold text-red-600 hover:text-red-800 transition-colors duration-300 flex items-center group"
+                                >
+                                    View Details
+                                    <span className="ml-2 transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true">&rarr;</span>
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </Section>
+        </PageContent>
+    );
+};
+
+const ProductDetailPage: FC<{ productName: string; navigateTo: (page: Page) => void }> = ({ productName, navigateTo }) => {
+    const product = products.find(p => p.name === productName);
+
+    if (!product) {
+        return (
+            <PageContent title="Error" subtitle="Product not found.">
+                <div className="text-center py-16">
+                    <p>The product you are looking for does not exist.</p>
+                    <button onClick={() => navigateTo('products')} className="mt-4 px-6 py-2 bg-red-600 text-white font-semibold rounded-md hover:bg-red-700">
+                        Back to Products
+                    </button>
+                </div>
+            </PageContent>
+        );
+    }
+
+    return (
+        <div className="animate-page-content-enter">
+            <header 
+                className="bg-gray-100 py-12"
+            >
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <button onClick={() => navigateTo('products')} className="flex items-center text-sm font-medium text-gray-600 hover:text-red-600 transition-colors">
+                        <ChevronLeft size={16} className="mr-1" />
+                        Back to Products
+                    </button>
+                </div>
+            </header>
+            <main>
+                <Section id="product-details" className="bg-white pt-12">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+                        <div className="bg-gray-100 rounded-lg flex items-center justify-center p-8 sticky top-24">
+                            <img src={product.image} alt={product.name} className="max-h-[60vh] object-contain"/>
+                        </div>
+                        <div>
+                            <p className="text-sm font-bold text-red-600 uppercase tracking-wider">{product.brand}</p>
+                            <h1 className="text-4xl lg:text-5xl font-extrabold text-gray-900 mt-2 mb-4">{product.name}</h1>
+                            <p className="text-gray-600 text-lg leading-relaxed mb-8">{product.longDescription}</p>
+
+                            <div className="my-8">
+                                <h3 className="text-2xl font-bold text-gray-900 mb-4 border-b pb-2">Specifications</h3>
+                                <ul className="space-y-3">
+                                    {product.specs.map(spec => (
+                                        <li key={spec.key} className="flex justify-between text-gray-700 border-b border-gray-200 py-2">
+                                            <span className="font-semibold">{spec.key}</span>
+                                            <span>{spec.value}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            
+                            <div className="mt-10">
+                                <button
+                                    onClick={() => navigateTo('booking')}
+                                    className="w-full bg-red-600 text-white font-bold py-4 px-8 rounded-lg hover:bg-red-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-red-500 focus:ring-opacity-50 text-lg flex items-center justify-center gap-2"
+                                >
+                                    <ShoppingCart size={20} /> Inquire Now
+                                </button>
+                                <p className="text-center text-sm text-gray-500 mt-4">Pricing and availability available upon request.</p>
+                            </div>
+                        </div>
+                    </div>
+                </Section>
+                <CtaSection navigateTo={navigateTo} />
+            </main>
+        </div>
+    );
+};
+
+const BookingPage: FC<{ appState: AppState }> = ({ appState }) => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [selectedService, setSelectedService] = useState('');
+  const [subject, setSubject] = useState('');
+
+  useEffect(() => {
+    if (appState.currentProduct) {
+        setSubject(`Inquiry about product: ${appState.currentProduct}`);
+    } else if (appState.currentService) {
+        setSubject(`Inquiry about service: ${appState.currentService}`);
+    } else {
+        setSubject('');
+    }
+  }, [appState.currentProduct, appState.currentService]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -1112,6 +1362,7 @@ const BookingPage: FC = () => {
                             onClick={() => {
                                 setIsSubmitted(false);
                                 setSelectedService('');
+                                setSubject('');
                             }}
                             className="bg-red-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-700 transition-all duration-300"
                         >
@@ -1127,15 +1378,17 @@ const BookingPage: FC = () => {
                             <input type="text" placeholder="Event Type (e.g., Concert, Wedding)" aria-label="Event Type" className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"/>
                         </div>
                         <div className="mb-6">
+                            <input type="text" placeholder="Subject" aria-label="Subject" value={subject} onChange={e => setSubject(e.target.value)} required className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"/>
+                        </div>
+                        <div className="mb-6">
                             <select
                                 name="service"
-                                aria-label="Service Type"
-                                required
+                                aria-label="Related Service (Optional)"
                                 value={selectedService}
                                 onChange={(e) => setSelectedService(e.target.value)}
                                 className={`w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors ${selectedService ? 'text-gray-900' : 'text-gray-500'}`}
                             >
-                                <option value="" disabled>Select a Service...</option>
+                                <option value="">Select a Related Service (Optional)...</option>
                                 {services.map((service) => (
                                     <option key={service.title} value={service.title} className="text-gray-900">
                                         {service.title}
@@ -1147,7 +1400,7 @@ const BookingPage: FC = () => {
                              <input type="date" aria-label="Event Date" required className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-500"/>
                         </div>
                         <div className="mb-6">
-                            <textarea placeholder="Tell us more about your event..." aria-label="Event Details" rows={6} required className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"></textarea>
+                            <textarea placeholder="Tell us more about your event or product inquiry..." aria-label="Event Details" rows={6} required className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"></textarea>
                         </div>
                         <button type="submit" className="w-full bg-red-600 text-white font-bold py-4 px-8 rounded-lg hover:bg-red-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-red-500 focus:ring-opacity-50 text-lg">
                             Submit Request
@@ -1237,14 +1490,187 @@ const ContactPage: FC = () => {
   );
 };
 
+
+// ~~~ LIVE CHAT COMPONENT ~~~
+
+interface LiveChatWidgetProps {
+  messages: ChatMessage[];
+  onSendMessage: (text: string) => void;
+  isTyping: boolean;
+}
+
+const LiveChatWidget: FC<LiveChatWidgetProps> = ({ messages, onSendMessage, isTyping }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [input, setInput] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isTyping]);
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (input.trim() && !isTyping) {
+      onSendMessage(input.trim());
+      setInput('');
+    }
+  };
+
+  return (
+    <div className="fixed bottom-5 right-5 z-50">
+      {isOpen && (
+        <div className="chat-widget-enter w-[calc(100vw-40px)] sm:w-96 h-[60vh] sm:h-[32rem] bg-white rounded-2xl shadow-2xl flex flex-col border border-gray-200">
+          <header className="p-4 bg-gray-900 text-white rounded-t-2xl flex justify-between items-center flex-shrink-0">
+            <div>
+              <h3 className="font-bold text-lg">Boyal Support</h3>
+              <p className="text-sm text-gray-300">AI Assistant</p>
+            </div>
+            <button onClick={() => setIsOpen(false)} aria-label="Close chat" className="p-1 rounded-full hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white">
+              <X size={20} />
+            </button>
+          </header>
+          
+          <div role="log" aria-live="polite" className="flex-1 p-4 overflow-y-auto bg-gray-50">
+            <div className="space-y-4">
+              {messages.map((msg) => (
+                <div key={msg.id} className={`flex items-end gap-2 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  {msg.sender === 'ai' && <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white flex-shrink-0"><Music size={16}/></div>}
+                  {msg.sender === 'ai' && msg.text === '' && !msg.error ? (
+                     <div className="bg-gray-200 rounded-2xl rounded-bl-none p-3">
+                        <div className="flex items-center space-x-1">
+                            <span className="w-2 h-2 bg-gray-400 rounded-full animate-pulse [animation-delay:-0.3s]"></span>
+                            <span className="w-2 h-2 bg-gray-400 rounded-full animate-pulse [animation-delay:-0.15s]"></span>
+                            <span className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></span>
+                        </div>
+                     </div>
+                  ) : (
+                    <div className={`max-w-xs md:max-w-sm rounded-2xl p-3 shadow-sm ${
+                      msg.sender === 'user' 
+                        ? 'bg-red-600 text-white rounded-br-none' 
+                        : `bg-white text-gray-800 rounded-bl-none ${msg.error ? 'bg-red-100 text-red-800' : ''}`
+                    }`}>
+                      <p className="text-sm break-words">{msg.text}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            <div ref={messagesEndRef} />
+          </div>
+
+          <div className="p-4 border-t border-gray-200 bg-white rounded-b-2xl">
+            <form onSubmit={handleFormSubmit} className="flex items-center gap-2">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Type a message..."
+                aria-label="Chat input"
+                className="flex-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:bg-gray-100"
+                disabled={isTyping}
+              />
+              <button type="submit" aria-label="Send message" className="bg-red-600 text-white p-3 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:bg-gray-400" disabled={isTyping || !input.trim()}>
+                <Send size={20} />
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      <button onClick={() => setIsOpen(!isOpen)} aria-label={isOpen ? 'Close chat' : 'Open chat'} className={`w-16 h-16 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-400 transition-transform hover:scale-110 ${!isOpen ? 'chat-pulse' : ''}`}>
+        {isOpen ? <X size={30} /> : <MessageSquare size={30} />}
+      </button>
+    </div>
+  );
+};
+
+
 // ~~~ MAIN APP COMPONENT ~~~
 
 const App: FC = () => {
-  const [appState, setAppState] = useState<AppState>({ currentPage: 'home', currentService: null });
+  const [appState, setAppState] = useState<AppState>({ currentPage: 'home', currentService: null, currentProduct: null });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [chat, setChat] = useState<Chat | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([
+      { id: 1, text: "Hello! How can I help you with our services or products today?", sender: 'ai' }
+  ]);
+  const [isAiTyping, setIsAiTyping] = useState(false);
 
-  const navigateTo = (page: Page, service: string | null = null) => {
-    setAppState({ currentPage: page, currentService: service });
+  useEffect(() => {
+    try {
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+      const chatInstance = ai.chats.create({
+        model: 'gemini-2.5-flash',
+        config: {
+          systemInstruction: 'You are a friendly and helpful customer support agent for Boyal Integrated Service. Your goal is to answer questions about their services (Music Production, Concert Productions, etc.) and products (microphones, speakers, etc.), help users with booking inquiries, and provide information about the company. Be concise and professional.',
+        },
+      });
+      setChat(chatInstance);
+    } catch (e) {
+      console.error("Failed to initialize Gemini Chat", e);
+      setMessages(prev => [...prev, {
+        id: Date.now(),
+        text: "Sorry, the chat service is currently unavailable.",
+        sender: 'ai',
+        error: true
+      }]);
+    }
+  }, []);
+
+  const handleSendMessage = async (text: string) => {
+    if (!chat || isAiTyping) return;
+
+    const userMessage: ChatMessage = { id: Date.now(), text, sender: 'user' };
+    const aiMessageId = Date.now() + 1;
+    const aiPlaceholder: ChatMessage = { id: aiMessageId, text: '', sender: 'ai' };
+
+    setMessages(prev => [...prev, userMessage, aiPlaceholder]);
+    setIsAiTyping(true);
+
+    try {
+        const stream = await chat.sendMessageStream({ message: text });
+        
+        let responseText = '';
+        for await (const chunk of stream) {
+            responseText += chunk.text;
+            setMessages(prev => prev.map(msg => 
+                msg.id === aiMessageId ? { ...msg, text: responseText } : msg
+            ));
+        }
+
+    } catch (error) {
+        console.error("Gemini API Error:", error);
+        setMessages(prev => prev.map(msg => 
+            msg.id === aiMessageId 
+            ? { ...msg, text: "Sorry, I encountered an error. Please try again.", error: true } 
+            : msg
+        ));
+    } finally {
+        setIsAiTyping(false);
+    }
+  };
+
+  const navigateTo = (page: Page, detailItem: string | null = null) => {
+    const isMainPage = ['home', 'about', 'services', 'gallery', 'products', 'contact'].includes(page);
+
+    setAppState(prevState => {
+        let nextState = {...prevState, currentPage: page};
+        
+        if (page === 'serviceDetail') {
+            nextState.currentService = detailItem;
+        }
+        if (page === 'productDetail') {
+            nextState.currentProduct = detailItem;
+        }
+        
+        // Reset context when moving to a main page
+        if(isMainPage) {
+            nextState.currentService = null;
+            nextState.currentProduct = null;
+        }
+        return nextState;
+    });
+
     setIsMenuOpen(false);
     window.scrollTo(0, 0);
   };
@@ -1256,7 +1682,9 @@ const App: FC = () => {
       case 'services': return <ServicesPage navigateTo={navigateTo} />;
       case 'serviceDetail': return <ServiceDetailPage serviceTitle={appState.currentService!} navigateTo={navigateTo} />;
       case 'gallery': return <GalleryPage />;
-      case 'booking': return <BookingPage />;
+      case 'products': return <ProductsPage navigateTo={navigateTo} />;
+      case 'productDetail': return <ProductDetailPage productName={appState.currentProduct!} navigateTo={navigateTo} />;
+      case 'booking': return <BookingPage appState={appState} />;
       case 'contact': return <ContactPage />;
       default: return <HomePage navigateTo={navigateTo} />;
     }
@@ -1308,7 +1736,11 @@ const App: FC = () => {
         )}
       </nav>
 
-      {renderPage()}
+      <main>
+        {renderPage()}
+      </main>
+      
+      <LiveChatWidget messages={messages} onSendMessage={handleSendMessage} isTyping={isAiTyping} />
 
       <footer className="bg-gray-900 text-white">
         <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
@@ -1326,7 +1758,7 @@ const App: FC = () => {
             <div>
               <h3 className="text-sm font-semibold text-gray-400 tracking-wider uppercase">Company</h3>
               <ul className="mt-4 space-y-2">
-                 {['about', 'gallery', 'contact'].map(p => (
+                 {['about', 'gallery', 'products', 'contact'].map(p => (
                    <li key={p}>
                      <button onClick={() => navigateTo(p as Page)} className="text-base text-gray-300 hover:text-white capitalize">{p}</button>
                    </li>

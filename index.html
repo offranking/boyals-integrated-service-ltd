@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-to" />
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Boyal Integrated Service</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -78,17 +78,38 @@
         transform: translateY(30px);
         animation: fade-in-up 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
       }
+      /* Live Chat Widget Animations */
+      .chat-widget-enter {
+          animation: slide-in-bottom-right 0.4s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+      }
+      @keyframes slide-in-bottom-right {
+        0% { transform: translate(100px, 100px); opacity: 0; }
+        100% { transform: translate(0, 0); opacity: 1; }
+      }
+      .chat-pulse {
+          animation: chat-pulse-animation 2.5s infinite;
+      }
+      @keyframes chat-pulse-animation {
+          0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+          70% { box-shadow: 0 0 0 12px rgba(220, 38, 38, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+      }
     </style>
   <script type="importmap">
 {
   "imports": {
-    "react/": "https://aistudiocdn.com/react@^19.1.1/",
     "react": "https://aistudiocdn.com/react@^19.1.1",
+    "react/jsx-runtime": "https://aistudiocdn.com/react@^19.1.1/jsx-runtime",
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.1.1",
+    "react-dom/client": "https://aistudiocdn.com/react-dom@^19.1.1/client",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.544.0",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^0.2.0",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
-    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.544.0"
+    "react/": "https://aistudiocdn.com/react@^19.1.1/"
   }
 }
 </script>
+<link rel="stylesheet" href="/index.css">
 </head>
   <body>
     <div id="root"></div>
