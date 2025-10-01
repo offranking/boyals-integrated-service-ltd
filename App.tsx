@@ -56,7 +56,7 @@ interface ArtistShowcase {
   trackTitle: string;
   trackUrl: string;
   description: string;
-  genre: 'Pop' | 'Rock' | 'Electronic' | 'Hip-Hop' | 'Afrobeat';
+  genre: 'Pop' | 'Rock' | 'Gospel' | 'Hip-Hop' | 'Afrobeat';
 }
 
 interface ChatMessage {
@@ -98,8 +98,8 @@ const services: Service[] = [
     description: 'High-quality music production for artists and events.',
     longDescription: "From initial concept to final master, our music production services cover every aspect of creating professional-grade audio. Whether you're a solo artist, a band, or need a custom soundtrack for an event, our state-of-the-art studio and experienced engineers are at your service.",
     features: ["Multi-track Recording", "Mixing & Mastering", "Beat Production", "Vocal Tuning"],
-    image: "https://picsum.photos/seed/musicprod/1200/800",
-    highlightImage: "https://picsum.photos/seed/musicprod-highlight/800/600",
+    image: "/public/images/services/Music.jpg",
+    highlightImage: "/public/images/services/Music.jpg",
     category: 'Production',
   },
   { 
@@ -108,8 +108,8 @@ const services: Service[] = [
     description: 'Full-scale concert production and management.',
     longDescription: "We bring concerts to life. Our team handles everything from stage design and lighting to sound engineering and logistics. We work with you to create an unforgettable live experience for both the performers and the audience.",
     features: ["Staging & Rigging", "Advanced Lighting Systems", "Video Wall Integration", "Logistics & Crew Management"],
-    image: "https://picsum.photos/seed/concert/1200/800",
-    highlightImage: "https://picsum.photos/seed/concert-highlight/800/600",
+    image: "/public/images/services/concert.jpeg",
+    highlightImage: "/public/images/services/concert.jpeg",
     category: 'Production',
   },
   { 
@@ -118,8 +118,8 @@ const services: Service[] = [
     description: 'Crystal clear sound for any venue size.',
     longDescription: "Ensure every word and note is heard with perfect clarity. Our sound reinforcement solutions are tailored to your specific venue and event type, using top-of-the-line speakers, microphones, and mixing consoles to deliver pristine audio.",
     features: ["PA System Design & Tuning", "Wireless Microphone Systems", "Audio Delay Towers", "Corporate AV Support"],
-    image: "https://picsum.photos/seed/sound/1200/800",
-    highlightImage: "https://picsum.photos/seed/sound-highlight/800/600",
+    image: "/public/images/services/Sound.jpg",
+    highlightImage: "/public/images/services/Sound.jpg",
     category: 'Live Sound',
   },
   { 
@@ -128,8 +128,8 @@ const services: Service[] = [
     description: 'Professional audio engineering for live performances.',
     longDescription: "A great performance deserves great sound. Our experienced live sound engineers work tirelessly behind the scenes to mix and balance audio in real-time, ensuring a flawless sonic experience for your audience.",
     features: ["Front of House (FOH) Mixing", "Monitor/In-Ear Mixing", "System Optimization", "Experienced Engineers"],
-    image: "https://picsum.photos/seed/live/1200/800",
-    highlightImage: "https://picsum.photos/seed/live-highlight/800/600",
+    image: "/public/images/services/Live.jpeg",
+    highlightImage: "/public/images/services/Live.jpeg",
     category: 'Live Sound',
   },
   { 
@@ -138,8 +138,8 @@ const services: Service[] = [
     description: 'Capture your event with pristine multi-track recording.',
     longDescription: "Preserve the magic of your live performance forever. We provide professional multi-track recording services that capture every nuance of your event, delivering high-quality audio ready for post-production, broadcast, or a live album release.",
     features: ["High-Fidelity Multi-track Capture", "Redundant Recording Systems", "Post-Event Mixing & Mastering", "Broadcast Feeds"],
-    image: "https://picsum.photos/seed/recording/1200/800",
-    highlightImage: "https://picsum.photos/seed/recording-highlight/800/600",
+    image: "/public/images/services/liverord.jpeg",
+    highlightImage: "/public/images/services/liverord.jpeg",
     category: 'Production',
   },
   { 
@@ -148,8 +148,8 @@ const services: Service[] = [
     description: 'Complete event planning and coordination.',
     longDescription: "Beyond the technical, we offer comprehensive event planning services. From venue selection to vendor coordination, we manage the details so you can focus on your guests and enjoy a perfectly executed social engagement.",
     features: ["Venue Sourcing", "Vendor Management", "Event Theming & Design", "On-site Coordination"],
-    image: "https://picsum.photos/seed/planning/1200/800",
-    highlightImage: "https://picsum.photos/seed/planning-highlight/800/600",
+    image: "/public/images/services/event.jpg",
+    highlightImage: "/public/images/services/event.jpg",
     category: 'Planning',
   },
 ];
@@ -158,10 +158,10 @@ const products: Product[] = [
   {
     id: 1,
     name: "Drums Chair",
-    category: 'Microphones',
-    brand: "SoundWave",
-    image: "/public/images/products/WhatsApp Image 2025-09-26 at 3.56.16 PM.jpeg",
-    description: "Studio-grade condenser microphone for crystal-clear vocal recording.",
+    category: 'Lighting',
+    brand: "Drumsboy",
+    image: "/public/images/products/1o.png",
+    description: "Drum Throne Padded Braced Seat / Stool.",
     longDescription: "High Load Capacity: We add three double-layer thickened metal support bars to the base to provide additional support for the entire drum throne. The height of the drum stool is about 20.8inch, with the load capacity up to 370lbs. It is very suitable for both children and adults",
     specs: [
       { key: "Frame Material", value: "Metal" },
@@ -174,9 +174,9 @@ const products: Product[] = [
     id: 2,
     name: "Shure SLXD Dual",
     category: 'Microphones',
-    brand: "AudioPro",
-    image: "/public/images/products/WhatsApp Image 2025-09-26 at 3.56.16 PM (1).jpeg",
-    description: "Powerful and portable 15-inch active PA speaker for live events.",
+    brand: "Shure",
+    image: "/public/images/products/1.png",
+    description: "Shure SLXD24/SM58 Digital Wireless Handheld Microphone System - H55 Band",
     longDescription: "Featuring two legendary SM58® Cardioid Dynamic Microphone capsules on SLXD2 handheld wireless transmitters, the SLXD24D/SM58 provides transparent digital audio and rock-solid RF stability for lecture halls and live performances.",
     specs: [
         { key: "Microphone Type", value: "Dynamic" },
@@ -188,10 +188,10 @@ const products: Product[] = [
   {
     id: 3,
     name: "Shure SM57",
-    category: 'Mixers',
-    brand: "MixMasters",
-    image: "/public/images/products/WhatsApp Image 2025-09-26 at 3.56.16 PM (2).jpeg",
-    description: "A versatile 24-channel analog mixing desk for studio and live use.",
+    category: 'Microphones',
+    brand: "Shure",
+    image: "/public/images/products/2.png",
+    description: "Shure SM57 Pro XLR Dynamic Microphone - Professional Studio & Live Performance C",
     longDescription: "The StudioMix console brings classic analog warmth and modern flexibility to your setup. Featuring high-quality preamps on every channel, a comprehensive EQ section, and flexible routing options, it's the heart of any professional audio environment.",
     specs: [
         { key: "Channels", value: "24 (16 mono, 4 stereo)" },
@@ -202,27 +202,27 @@ const products: Product[] = [
   },
   {
     id: 4,
-    name: "StageBeam Pro LED Par",
-    category: 'Lighting',
-    brand: "GlowFX",
-    image: "https://picsum.photos/seed/light1/600/600",
-    description: "Bright and dynamic LED par can for vibrant stage lighting.",
-    longDescription: "Illuminate your stage with the StageBeam Pro. This powerful LED fixture offers full RGBW color mixing, allowing for an endless spectrum of colors. DMX controllable and featuring sound-active modes, it's perfect for creating immersive lighting designs.",
+    name: "IEM dual",
+    category: 'Microphones',
+    brand: "XTUGA",
+    image: "/public/images/products/3.png",
+    description: "XTUGA IEM1200 Wireless in Ear Monitor Dual Channel 4 Bodypacks Ear Monitors.",
+    longDescription: "Your performance should never be in question. Whether presenting, educating, praising or entertaining, your relationship with your audience is singular",
     specs: [
-        { key: "Light Source", value: "12 x 10W RGBW LEDs" },
-        { key: "Beam Angle", value: "25 degrees" },
-        { key: "Control", value: "DMX-512, Sound-Active" },
-        { key: "Power Consumption", value: "120W" }
+        { key: "Unit of Measure", value: "EA" },
+        { key: "Unit Size", value: "1" },
+        { key: "Mfr.", value: "SLXD14D-G58" },
+        { key: "Manufacturer", value: "Shure" }
     ]
   },
   {
     id: 5,
-    name: "Dynamic Vocal Mic DV58",
+    name: "IEM body pack",
     category: 'Microphones',
-    brand: "SoundWave",
-    image: "https://picsum.photos/seed/mic2/600/600",
-    description: "The industry-standard dynamic microphone for live vocals.",
-    longDescription: "Rugged, reliable, and sounding great on any voice, the DV58 is a legend on stages worldwide. Its cardioid pickup pattern isolates the main sound source while minimizing background noise, making it ideal for live performance.",
+    brand: "UHF",
+    image: "/public/images/products/4.png",
+    description: "Receivers Wireless In Ear Monitor System Pro Audio UHF 2 channel Stage Studio.",
+    longDescription: "LMBGM UHF Wireless In-Ear Monitoring System with 4 Bodypack Monitors, USB Rechargeable, 16-Channel Selectable, Microphone Gain, Headset Wireless Type, Ideal for Stage, Studio, Recording Studio, Church, Karaoke - Christmas Gift, Studio Audio Equipment | Modern Audio Gear | Durable Audio Equipment, Wireless Microphone, Wireles Earbud For Men, Earbud Wireles",
     specs: [
       { key: "Type", value: "Dynamic" },
       { key: "Polar Pattern", value: "Cardioid" },
@@ -232,17 +232,62 @@ const products: Product[] = [
   },
   {
     id: 6,
-    name: "SubBass 18\" Active Subwoofer",
+    name: "BLX Cover",
     category: 'Speakers',
-    brand: "AudioPro",
-    image: "https://picsum.photos/seed/speaker2/600/600",
-    description: "Feel the low-end thunder with this 18-inch powered subwoofer.",
-    longDescription: "Add powerful, tight, and clear low-frequency impact to your sound system. The SubBass 18 provides 1500W of earth-shaking power, perfect for live bands, DJs, and installations where deep bass is a must.",
+    brand: "BLX",
+    image: "/public/images/products/5.png",
+    description: "Generic BLX2 Microphone Battery Cup Cover for Shure BLX Wireless Microphone System (Black)",
+    longDescription: "The black Replacement Battery Cup for BLX2 Series Handheld Transmitters is compatible with BLX2/B58, BLX2/PG58, and BLX2/SM58 handheld wireless transmitters",
     specs: [
-        { key: "Power", value: "1500W Peak" },
-        { key: "Driver Size", value: "18-inch" },
-        { key: "Frequency Response", value: "35Hz - 150Hz" },
-        { key: "Max SPL", value: "134 dB" }
+        { key: "Power", value: "1500W (Peak power handling capacity.)" },
+        { key: "RMS", value: "750W (Continuous power handling capacity.)" },
+        { key: "Driver", value: "18-inch (The diameter of the main woofer cone.)" },
+        { key: "Impedance", value: "8-Ohm (The electrical resistance of the voice coil.)" }
+    ]
+  },
+  {
+    id: 7,
+    name: "Saxophone microphones",
+    category: 'Microphones',
+    brand: "BOMGE",
+    image: "/public/images/products/6.png",
+    description: "BOMGE Wireless Saxophone Microphone System, Clip on Instrument Microphone Suitable for Saxophones and Speakers.",
+    longDescription: "These are small, lightweight mics that attach directly to the bell or body of the saxophone on a short gooseneck. Great for live performance mobility.",
+    specs: [
+        { key: "Polar Pattern", value: "Supercardioid" },
+        { key: "Mounting", value: "Adjustable Gooseneck Clamp" },
+        { key: "Max SPL", value: "≥142 dB" },
+        { key: "Technology", value: "CORE+ / Transformerless" }
+    ]
+  },
+  {
+    id: 8,
+    name: "Conference Microphone",
+    category: 'Microphones',
+    brand: "Unbanded",
+    image: "/public/images/products/7.png",
+    description: "The best type of microphone depends heavily on the room size, setup, and whether video conferencing is involved.",
+    longDescription: "A conference microphone is a specialized audio device designed to capture clear, intelligible speech in meeting spaces, boardrooms, and lecture halls, ensuring that all participants—both in the room and remote—can be heard clearly",
+    specs: [
+        { key: "Boundary Microphones", value: "Small to Medium Huddle Rooms" },
+        { key: "Gooseneck Microphones", value: "Podium/Lecterns, Panel Discussions, Delegate Systems" },
+        { key: "Tabletop Array Microphones", value: "Medium to Large Meeting Rooms" },
+        { key: "Ceiling Array Microphones", value: "Large, High-Aesthetic Rooms" }
+    ]
+  },
+  {
+    id: 9,
+    name: "Shure SM58",
+    category: 'Microphones',
+    brand: "Shure",
+    image: "/public/images/products/8.png",
+    description: "Dual-Channel Operation: Simultaneously supports two performers from a single BLX88 tabletop receiver..",
+    longDescription: "The Shure BLX288/SM58 Dual Channel Handheld Wireless System is a professional, cost-effective wireless solution designed for two vocalists, presenters, or speakers.",
+    specs: [
+        { key: "Microphones", value: "(2) SM58 Handheld Capsules" },
+        { key: "Channels", value: "Dual-Channel Receiver" },
+        { key: "Range", value: "Up to 300 ft (Line of Sight)" },
+        { key: "Setup", value: "One-touch QuickScan Frequency Selection" }
     ]
   },
 ];
@@ -253,10 +298,20 @@ const testimonials: Testimonial[] = [
     { quote: "We hired them for our wedding reception, and it was the best decision we made. The music and lighting created the perfect atmosphere. Highly recommended!", author: "Emily & Mark", event: "Wedding Reception", avatar: "https://i.pravatar.cc/150?u=emily" }
 ];
 
-const galleryImages: GalleryImage[] = Array.from({ length: 9 }, (_, i) => ({
-    src: `https://picsum.photos/seed/${i + 1}/600/400`,
-    caption: `Vibrant event atmosphere, Setup #${i + 1}`,
-}));
+const galleryImages: GalleryImage[] = [
+    { src: '/public/images/gallery/e1.jpeg', caption: 'Live concert setup with vibrant stage lights' },
+    { src: '/public/images/gallery/e2.jpeg', caption: 'Corporate event audio-visual arrangement' },
+    { src: '/public/images/gallery/e3.jpeg', caption: 'Intimate wedding reception sound system' },
+    { src: '/public/images/gallery/e4.jpeg', caption: 'Music festival main stage production' },
+    { src: '/public/images/gallery/e5.jpeg', caption: 'Studio recording session in progress' },
+    { src: '/public/images/gallery/e6.jpeg', caption: 'Outdoor event sound reinforcement' },
+    { src: '/public/images/gallery/e7.jpeg', caption: 'DJ booth with professional equipment' },
+    { src: '/public/images/gallery/e8.jpeg', caption: 'Detailed shot of a mixing console' },
+    { src: '/public/images/gallery/e9.jpeg', caption: 'Team setting up for a large-scale event' },
+    { src: '/public/images/gallery/e10.jpeg', caption: 'Team setting up for a large-scale event' },
+    { src: '/public/images/gallery/e11.jpeg', caption: 'Team setting up for a large-scale event' },
+    { src: '/public/images/gallery/e15.jpeg', caption: 'Team setting up for a large-scale event' },
+];
 
 const teamMembers: TeamMember[] = [
     { name: "Alex Boyal", title: "Founder & Lead Engineer", avatar: "https://i.pravatar.cc/150?u=alex" },
@@ -267,53 +322,38 @@ const teamMembers: TeamMember[] = [
 
 const artistShowcases: ArtistShowcase[] = [
     {
-        artistName: "Burna Boy",
-        albumArt: "https://dims.apnews.com/dims4/default/b753522/2147483647/strip/true/crop/3472x2315+0+0/resize/599x399!/quality/90/?url=https%3A%2F%2Fassets.apnews.com%2F95%2Fbb%2Fb7658baccb4573645e2f21b6052e%2F6c42c0fc53bd47e49792c6c946a1f637",
-        trackTitle: "Lagos Groove",
+        artistName: "Made Kuti",
+        albumArt: "/public/images/artists/Mide.jpeg",
+        trackTitle: "The Homeland",
         trackUrl: "https://cdn.trendybeatz.com/audio/Burna-Boy-23.mp3",
-        description: "A vibrant Afrobeat track that blends traditional rhythms with modern production. We focused on a rich, layered percussion section.",
+        description: "Song by Busy Signal, Made Kuti, and Morgan Heritage",
         genre: 'Afrobeat',
     },
     {
-        artistName: "Tems",
-        albumArt: "https://upload.wikimedia.org/wikipedia/commons/e/ec/Tems_on_NdaniTV_Sessions_-cropped.png",
-        trackTitle: "King Around Here",
+        artistName: "Nathaniel Bassey",
+        albumArt: "/public/images/artists/Bassy.jpg",
+        trackTitle: "The River",
         trackUrl: "https://cdn.pixabay.com/download/audio/2022/08/04/audio_2d02511475.mp3",
-        description: "We worked with Tems to craft the synth-heavy soundscape of her breakout EP. Our team handled mixing and mastering to bring her ethereal vision to life.",
-        genre: 'Electronic',
+        description: "We Come Before Your Presence · Nathaniel Bassey · Yahweh Sabaoth · Nathaniel Bassey",
+        genre: 'Gospel',
     },
     {
-        artistName: "Boy Spyce",
-        albumArt: "https://trendybeatz.com/images/Boy-Spyce-Picture.jpg",
-        trackTitle: "The Rock",
+        artistName: "Naira Marley",
+        albumArt: "/public/images/artists/Naira.jpeg",
+        trackTitle: "Soapy",
         trackUrl: "https://cdn.pixabay.com/download/audio/2022/05/23/audio_784133496c.mp3",
-        description: "A raw, high-energy rock track. We captured the band's live energy with multi-track recording and produced a powerful, radio-ready mix.",
-        genre: 'Rock',
-    },
-    {
-        artistName: "Ayra Starr",
-        albumArt: "https://unorthodoxreviews.com/wp-content/uploads/2025/03/photo-output-16.jpeg",
-        trackTitle: "It's Hip Hop",
-        trackUrl: "https://cdn.pixabay.com/download/audio/2022/09/26/audio_55392b5123.mp3",
-        description: "For MC Flow's latest single, our beat production and vocal engineering provided the perfect foundation for his intricate lyricism.",
-        genre: 'Hip-Hop',
-    },
-    {
-        artistName: "Davido",
-        albumArt: "https://d1jcea4y7xhp7l.cloudfront.net/wp-content/uploads/2025/06/Davido-2-edited.png",
-        trackTitle: "Upbeat Pop Day",
-        trackUrl: "https://cdn.pixabay.com/download/audio/2022/12/26/audio_51322253d8.mp3",
-        description: "A chart-topping pop hit. We co-wrote, produced, and mastered this track, focusing on a clean, dynamic sound that captivates listeners.",
-        genre: 'Pop',
-    },
-    {
-        artistName: "Temsi",
-        albumArt: "https://images.unsplash.com/photo-1598387993441-a364f854c3e1?q=80&w=600&auto=format=fit=crop",
-        trackTitle: "Afro Pop",
-        trackUrl: "https://cdn.pixabay.com/download/audio/2023/04/24/audio_9273c336b1.mp3",
-        description: "This soulful Afro Pop record required a warm, analog mix to complement Temsi's smooth vocals. We mastered it for both streaming and vinyl.",
+        description: "Soapy” appears to be crude song about masturbation but that is just what Naira wants “the powers that be” to think",
         genre: 'Afrobeat',
     },
+    {
+        artistName: "Sunmisola Agbebi",
+        albumArt: "/public/images/artists/Sumi.jpg",
+        trackTitle: "Prevalling Worship",
+        trackUrl: "https://cdn.pixabay.com/download/audio/2022/09/26/audio_55392b5123.mp3",
+        description: "Prevailing Worship from Prevailing Worship by Yinka Okeleye, Sunmisola Agbebi & Moses Bliss now.",
+        genre: 'Gospel',
+    },
+    
 ];
 
 
@@ -646,7 +686,7 @@ const PageContent: FC<{ title: string; subtitle: string; children: ReactNode }> 
 );
 
 const ArtistShowcaseSection: FC = () => {
-    const soundGenres = ['All', 'Electronic', 'Rock', 'Hip-Hop', 'Pop', 'Afrobeat'];
+    const soundGenres = ['All', 'Gospel', 'Rock', 'Hip-Hop', 'Pop', 'Afrobeat'];
     const [activeFilter, setActiveFilter] = useState('All');
     const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -890,12 +930,12 @@ const AboutPage: FC<{navigateTo: (page: Page) => void}> = ({ navigateTo }) => {
                             Founded over a decade ago with a single microphone and an immense passion for audio, Boyal Integrated Service has grown into a premier provider of production and event services. Our philosophy is simple: combine cutting-edge technology with creative artistry to produce experiences that resonate.
                         </p>
                         <p>
-                            We believe that every event, from a corporate conference to a sold-out concert, is a unique story waiting to be told. Our role is to provide the perfect sonic and visual backdrop for that story. We are a team of engineers, planners, and artists dedicated to the pursuit of perfection.
+                            We believe thatevery event, from a corporate conference to a sold-out concert, is a unique story waiting to be told. Our role is to provide the perfect sonic and visual backdrop for that story. We are a team of engineers, planners, and artists dedicated to the pursuit of perfection.
                         </p>
                     </div>
                     <div>
                         <img 
-                            src="https://picsum.photos/seed/about-team/800/600" 
+                            src="/public/images/services/concert.jpeg" 
                             alt="The Boyal Integrated Service team collaborating in their studio." 
                             className="rounded-xl shadow-2xl w-full h-auto object-cover"
                         />
@@ -936,28 +976,7 @@ const AboutPage: FC<{navigateTo: (page: Page) => void}> = ({ navigateTo }) => {
                 </div>
             </Section>
 
-            {/* Meet the Team Section */}
-            <Section id="team">
-                <div className="text-center mb-16">
-                    <h2 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">Meet the Team</h2>
-                    <p className="text-red-600 mt-4 text-lg">The Experts Behind the Magic</p>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
-                    {teamMembers.map((member) => (
-                        <div key={member.name} className="text-center group">
-                            <div className="relative w-48 h-48 mx-auto mb-4">
-                                <img 
-                                    src={member.avatar} 
-                                    alt={`Portrait of ${member.name}`} 
-                                    className="w-full h-full rounded-full object-cover shadow-lg transition-transform duration-300 group-hover:scale-105"
-                                />
-                            </div>
-                            <h3 className="text-xl font-bold text-gray-900">{member.name}</h3>
-                            <p className="text-red-600 font-medium">{member.title}</p>
-                        </div>
-                    ))}
-                </div>
-            </Section>
+            
             
             <ArtistShowcaseSection />
             <CtaSection navigateTo={navigateTo} />
@@ -1182,7 +1201,7 @@ const GalleryPage: FC = () => {
                         onClick={e => e.stopPropagation()}
                     >
                          <div className="p-4 flex-grow flex items-center justify-center">
-                            <img src={selectedImage.src.replace('600/400', '1200/800')} alt={selectedImage.caption} className="max-w-full max-h-[75vh] object-contain rounded"/>
+                            <img src={selectedImage.src} alt={selectedImage.caption} className="max-w-full max-h-[75vh] object-contain rounded"/>
                          </div>
                         <div id="modal-caption" className="bg-black/70 text-white text-center p-3">
                             <p>{selectedImage.caption}</p>
@@ -1423,9 +1442,9 @@ const ContactPage: FC = () => {
   };
 
   const contactDetails = [
-    { icon: Phone, text: "+1 (555) 123-4567", href: "tel:+1-555-123-4567" },
+    { icon: Phone, text: "+2348025028905", href: "tel:+2348025028905" },
     { icon: Mail, text: "contact@boyalservice.com", href: "mailto:contact@boyalservice.com" },
-    { icon: MapPin, text: "123 Music Row, Nashville, TN", href: "#" },
+    { icon: MapPin, text: "Badore, Lagos, Nigeria  Map / landmark reference: Ajah, Lekki Lagos", href: "#" },
   ];
   return (
     <PageContent title="Contact Us" subtitle="We're Here to Help. Reach Out with Any Questions or Inquiries.">
@@ -1534,7 +1553,7 @@ const LiveChatWidget: FC<LiveChatWidgetProps> = ({ messages, onSendMessage, isTy
             <div className="space-y-4">
               {messages.map((msg) => (
                 <div key={msg.id} className={`flex items-end gap-2 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  {msg.sender === 'ai' && <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white flex-shrink-0"><Music size={16}/></div>}
+                  {msg.sender === 'ai' && <img src="/public/images/logo.png" alt="AI Assistant" className="w-8 h-8 rounded-full bg-gray-900 object-contain p-1 flex-shrink-0" />}
                   {msg.sender === 'ai' && msg.text === '' && !msg.error ? (
                      <div className="bg-gray-200 rounded-2xl rounded-bl-none p-3">
                         <div className="flex items-center space-x-1">
@@ -1696,9 +1715,8 @@ const App: FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             <div className="flex items-center">
-                <button onClick={() => navigateTo('home')} className="flex-shrink-0 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 rounded-lg">
-                    <Music className="h-10 w-10 text-red-600" />
-                    <span className="text-xl font-bold text-gray-900">Boyal Integrated Service</span>
+                <button onClick={() => navigateTo('home')} className="flex-shrink-0 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 rounded-lg p-2">
+                    <img src="/public/images/logo.png" alt="Boyal Integrated Service logo" className="h-16 w-auto" />
                 </button>
             </div>
             <div className="hidden md:block">
