@@ -1,7 +1,10 @@
+
 import React, { useState, FC, ReactNode, useRef, useEffect } from 'react';
 import { Page } from './types';
 import { Music, MonitorSpeaker, Mic, Headphones, Cable, Menu, X, Facebook, Twitter, Instagram, Linkedin, PartyPopper, Phone, Mail, MapPin, Quote, CheckCircle, PlayCircle, MessageSquare, ClipboardList, Play, Award, Heart, Star, Users, Pause, Link, Share2, Volume2, Volume1, VolumeX, ChevronLeft, ChevronRight, Speaker, Send, ShoppingCart, Info } from 'lucide-react';
 import { GoogleGenAI, Chat } from '@google/genai';
+
+const API_BASE_URL = 'http://localhost:3001/api';
 
 // ~~~ TYPE DEFINITIONS ~~~
 interface AppState {
@@ -22,7 +25,8 @@ interface NavLinkProps {
 type ServiceCategory = 'Production' | 'Live Sound' | 'Planning';
 
 interface Service {
-  icon: React.ElementType;
+  iconName: string; // Changed from React.ElementType to string
+  icon?: React.ElementType; // Keep this for frontend rendering
   title: string;
   description: string;
   longDescription: string;
@@ -91,212 +95,15 @@ const navLinks: { page: Page; title: string }[] = [
   { page: 'contact', title: 'Contact' },
 ];
 
-const services: Service[] = [
-  { 
-    icon: Music, 
-    title: 'Music Production', 
-    description: 'High-quality music production for artists and events.',
-    longDescription: "From initial concept to final master, our music production services cover every aspect of creating professional-grade audio. Whether you're a solo artist, a band, or need a custom soundtrack for an event, our state-of-the-art studio and experienced engineers are at your service.",
-    features: ["Multi-track Recording", "Mixing & Mastering", "Beat Production", "Vocal Tuning"],
-    image: "/public/images/services/Music.jpg",
-    highlightImage: "/public/images/services/Music.jpg",
-    category: 'Production',
-  },
-  { 
-    icon: MonitorSpeaker, 
-    title: 'Concert Productions', 
-    description: 'Full-scale concert production and management.',
-    longDescription: "We bring concerts to life. Our team handles everything from stage design and lighting to sound engineering and logistics. We work with you to create an unforgettable live experience for both the performers and the audience.",
-    features: ["Staging & Rigging", "Advanced Lighting Systems", "Video Wall Integration", "Logistics & Crew Management"],
-    image: "/public/images/services/concert.jpeg",
-    highlightImage: "/public/images/services/concert.jpeg",
-    category: 'Production',
-  },
-  { 
-    icon: Mic, 
-    title: 'Sound Reinforcement', 
-    description: 'Crystal clear sound for any venue size.',
-    longDescription: "Ensure every word and note is heard with perfect clarity. Our sound reinforcement solutions are tailored to your specific venue and event type, using top-of-the-line speakers, microphones, and mixing consoles to deliver pristine audio.",
-    features: ["PA System Design & Tuning", "Wireless Microphone Systems", "Audio Delay Towers", "Corporate AV Support"],
-    image: "/public/images/services/Sound.jpg",
-    highlightImage: "/public/images/services/Sound.jpg",
-    category: 'Live Sound',
-  },
-  { 
-    icon: Headphones, 
-    title: 'Live Sound Engineering', 
-    description: 'Professional audio engineering for live performances.',
-    longDescription: "A great performance deserves great sound. Our experienced live sound engineers work tirelessly behind the scenes to mix and balance audio in real-time, ensuring a flawless sonic experience for your audience.",
-    features: ["Front of House (FOH) Mixing", "Monitor/In-Ear Mixing", "System Optimization", "Experienced Engineers"],
-    image: "/public/images/services/Live.jpeg",
-    highlightImage: "/public/images/services/Live.jpeg",
-    category: 'Live Sound',
-  },
-  { 
-    icon: Cable, 
-    title: 'Live Recording', 
-    description: 'Capture your event with pristine multi-track recording.',
-    longDescription: "Preserve the magic of your live performance forever. We provide professional multi-track recording services that capture every nuance of your event, delivering high-quality audio ready for post-production, broadcast, or a live album release.",
-    features: ["High-Fidelity Multi-track Capture", "Redundant Recording Systems", "Post-Event Mixing & Mastering", "Broadcast Feeds"],
-    image: "/public/images/services/liverord.jpeg",
-    highlightImage: "/public/images/services/liverord.jpeg",
-    category: 'Production',
-  },
-  { 
-    icon: PartyPopper, 
-    title: 'Event Planning', 
-    description: 'Complete event planning and coordination.',
-    longDescription: "Beyond the technical, we offer comprehensive event planning services. From venue selection to vendor coordination, we manage the details so you can focus on your guests and enjoy a perfectly executed social engagement.",
-    features: ["Venue Sourcing", "Vendor Management", "Event Theming & Design", "On-site Coordination"],
-    image: "/public/images/services/event.jpg",
-    highlightImage: "/public/images/services/event.jpg",
-    category: 'Planning',
-  },
-];
+const serviceIcons: { [key: string]: React.ElementType } = {
+    Music,
+    MonitorSpeaker,
+    Mic,
+    Headphones,
+    Cable,
+    PartyPopper,
+};
 
-const products: Product[] = [
-  {
-    id: 1,
-    name: "Drums Chair",
-    category: 'Lighting',
-    brand: "Drumsboy",
-    image: "/public/images/products/1o.png",
-    description: "Drum Throne Padded Braced Seat / Stool.",
-    longDescription: "High Load Capacity: We add three double-layer thickened metal support bars to the base to provide additional support for the entire drum throne. The height of the drum stool is about 20.8inch, with the load capacity up to 370lbs. It is very suitable for both children and adults",
-    specs: [
-      { key: "Frame Material", value: "Metal" },
-      { key: "Item Weight", value: "4 Pounds" },
-      { key: "Shape", value: "Round" },
-      { key: "Seat Material Type", value: "Metal" }
-    ]
-  },
-  {
-    id: 2,
-    name: "Shure SLXD Dual",
-    category: 'Microphones',
-    brand: "Shure",
-    image: "/public/images/products/1.png",
-    description: "Shure SLXD24/SM58 Digital Wireless Handheld Microphone System - H55 Band",
-    longDescription: "Featuring two legendary SM58® Cardioid Dynamic Microphone capsules on SLXD2 handheld wireless transmitters, the SLXD24D/SM58 provides transparent digital audio and rock-solid RF stability for lecture halls and live performances.",
-    specs: [
-        { key: "Microphone Type", value: "Dynamic" },
-        { key: "Configuration", value: "Dual" },
-        { key: "Connectivity", value: "Wireless" },
-        { key: "Performance", value: "Stable" }
-    ]
-  },
-  {
-    id: 3,
-    name: "Shure SM57",
-    category: 'Microphones',
-    brand: "Shure",
-    image: "/public/images/products/2.png",
-    description: "Shure SM57 Pro XLR Dynamic Microphone - Professional Studio & Live Performance C",
-    longDescription: "The StudioMix console brings classic analog warmth and modern flexibility to your setup. Featuring high-quality preamps on every channel, a comprehensive EQ section, and flexible routing options, it's the heart of any professional audio environment.",
-    specs: [
-        { key: "Channels", value: "24 (16 mono, 4 stereo)" },
-        { key: "Preamps", value: "20 High-Headroom Preamps" },
-        { key: "EQ", value: "3-band with sweepable mid" },
-        { key: "Connectivity", value: "USB Audio Interface" }
-    ]
-  },
-  {
-    id: 4,
-    name: "IEM dual",
-    category: 'Microphones',
-    brand: "XTUGA",
-    image: "/public/images/products/3.png",
-    description: "XTUGA IEM1200 Wireless in Ear Monitor Dual Channel 4 Bodypacks Ear Monitors.",
-    longDescription: "Your performance should never be in question. Whether presenting, educating, praising or entertaining, your relationship with your audience is singular",
-    specs: [
-        { key: "Unit of Measure", value: "EA" },
-        { key: "Unit Size", value: "1" },
-        { key: "Mfr.", value: "SLXD14D-G58" },
-        { key: "Manufacturer", value: "Shure" }
-    ]
-  },
-  {
-    id: 5,
-    name: "IEM body pack",
-    category: 'Microphones',
-    brand: "UHF",
-    image: "/public/images/products/4.png",
-    description: "Receivers Wireless In Ear Monitor System Pro Audio UHF 2 channel Stage Studio.",
-    longDescription: "LMBGM UHF Wireless In-Ear Monitoring System with 4 Bodypack Monitors, USB Rechargeable, 16-Channel Selectable, Microphone Gain, Headset Wireless Type, Ideal for Stage, Studio, Recording Studio, Church, Karaoke - Christmas Gift, Studio Audio Equipment | Modern Audio Gear | Durable Audio Equipment, Wireless Microphone, Wireles Earbud For Men, Earbud Wireles",
-    specs: [
-      { key: "Type", value: "Dynamic" },
-      { key: "Polar Pattern", value: "Cardioid" },
-      { key: "Frequency Response", value: "50Hz - 15kHz" },
-      { key: "Impedance", value: "150 ohm" }
-    ]
-  },
-  {
-    id: 6,
-    name: "BLX Cover",
-    category: 'Speakers',
-    brand: "BLX",
-    image: "/public/images/products/5.png",
-    description: "Generic BLX2 Microphone Battery Cup Cover for Shure BLX Wireless Microphone System (Black)",
-    longDescription: "The black Replacement Battery Cup for BLX2 Series Handheld Transmitters is compatible with BLX2/B58, BLX2/PG58, and BLX2/SM58 handheld wireless transmitters",
-    specs: [
-        { key: "Power", value: "1500W (Peak power handling capacity.)" },
-        { key: "RMS", value: "750W (Continuous power handling capacity.)" },
-        { key: "Driver", value: "18-inch (The diameter of the main woofer cone.)" },
-        { key: "Impedance", value: "8-Ohm (The electrical resistance of the voice coil.)" }
-    ]
-  },
-  {
-    id: 7,
-    name: "Saxophone microphones",
-    category: 'Microphones',
-    brand: "BOMGE",
-    image: "/public/images/products/6.png",
-    description: "BOMGE Wireless Saxophone Microphone System, Clip on Instrument Microphone Suitable for Saxophones and Speakers.",
-    longDescription: "These are small, lightweight mics that attach directly to the bell or body of the saxophone on a short gooseneck. Great for live performance mobility.",
-    specs: [
-        { key: "Polar Pattern", value: "Supercardioid" },
-        { key: "Mounting", value: "Adjustable Gooseneck Clamp" },
-        { key: "Max SPL", value: "≥142 dB" },
-        { key: "Technology", value: "CORE+ / Transformerless" }
-    ]
-  },
-  {
-    id: 8,
-    name: "Conference Microphone",
-    category: 'Microphones',
-    brand: "Unbanded",
-    image: "/public/images/products/7.png",
-    description: "The best type of microphone depends heavily on the room size, setup, and whether video conferencing is involved.",
-    longDescription: "A conference microphone is a specialized audio device designed to capture clear, intelligible speech in meeting spaces, boardrooms, and lecture halls, ensuring that all participants—both in the room and remote—can be heard clearly",
-    specs: [
-        { key: "Boundary Microphones", value: "Small to Medium Huddle Rooms" },
-        { key: "Gooseneck Microphones", value: "Podium/Lecterns, Panel Discussions, Delegate Systems" },
-        { key: "Tabletop Array Microphones", value: "Medium to Large Meeting Rooms" },
-        { key: "Ceiling Array Microphones", value: "Large, High-Aesthetic Rooms" }
-    ]
-  },
-  {
-    id: 9,
-    name: "Shure SM58",
-    category: 'Microphones',
-    brand: "Shure",
-    image: "/public/images/products/8.png",
-    description: "Dual-Channel Operation: Simultaneously supports two performers from a single BLX88 tabletop receiver..",
-    longDescription: "The Shure BLX288/SM58 Dual Channel Handheld Wireless System is a professional, cost-effective wireless solution designed for two vocalists, presenters, or speakers.",
-    specs: [
-        { key: "Microphones", value: "(2) SM58 Handheld Capsules" },
-        { key: "Channels", value: "Dual-Channel Receiver" },
-        { key: "Range", value: "Up to 300 ft (Line of Sight)" },
-        { key: "Setup", value: "One-touch QuickScan Frequency Selection" }
-    ]
-  },
-];
-
-const testimonials: Testimonial[] = [
-    { quote: "Boyal Integrated Service transformed our annual gala. The sound was impeccable and the team was incredibly professional. A flawless experience!", author: "Jane Doe", event: "Corporate Gala", avatar: "https://i.pravatar.cc/150?u=jane" },
-    { quote: "The best concert production we've ever had. They handled everything with ease and expertise. Our fans are still talking about the show!", author: "John Smith", event: "The Rockers Band", avatar: "https://i.pravatar.cc/150?u=john" },
-    { quote: "We hired them for our wedding reception, and it was the best decision we made. The music and lighting created the perfect atmosphere. Highly recommended!", author: "Emily & Mark", event: "Wedding Reception", avatar: "https://i.pravatar.cc/150?u=emily" }
-];
 
 const galleryImages: GalleryImage[] = [
     { src: '/public/images/gallery/e1.jpeg', caption: 'Live concert setup with vibrant stage lights' },
@@ -313,12 +120,6 @@ const galleryImages: GalleryImage[] = [
     { src: '/public/images/gallery/e15.jpeg', caption: 'Team setting up for a large-scale event' },
 ];
 
-const teamMembers: TeamMember[] = [
-    { name: "Alex Boyal", title: "Founder & Lead Engineer", avatar: "https://i.pravatar.cc/150?u=alex" },
-    { name: "Maria Garcia", title: "Events Director", avatar: "https://i.pravatar.cc/150?u=maria" },
-    { name: "David Chen", title: "Creative Lead", avatar: "https://i.pravatar.cc/150?u=david" },
-    { name: "Sarah Jenkins", title: "Client Relations", avatar: "https://i.pravatar.cc/150?u=sarah" },
-];
 
 const artistShowcases: ArtistShowcase[] = [
     {
@@ -388,14 +189,17 @@ const NavLink: FC<NavLinkProps> = ({ page, appState, navigateTo, children, isMob
 
 // ~~~ PAGE COMPONENTS ~~~
 
-const ServicesHighlightSection: FC<{ navigateTo: (page: Page, service?: string | null) => void }> = ({ navigateTo }) => (
+const ServicesHighlightSection: FC<{ services: Service[], navigateTo: (page: Page, service?: string | null) => void }> = ({ services, navigateTo }) => (
   <Section id="home-services" className="bg-gray-50">
     <div className="text-center mb-16">
       <h2 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">Our Signature Services</h2>
       <p className="text-red-600 mt-4 text-lg">Comprehensive Solutions for Unforgettable Events</p>
     </div>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {services.slice(0, 3).map((service) => (
+      {services.slice(0, 3).map((service) => {
+        const Icon = service.icon;
+        if (!Icon) return null;
+        return (
          <div 
             key={service.title} 
             role="button"
@@ -417,7 +221,7 @@ const ServicesHighlightSection: FC<{ navigateTo: (page: Page, service?: string |
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent" aria-hidden="true"></div>
             <div className="relative h-full flex flex-col justify-end p-8 text-white min-h-[400px]">
                 <div className="transform transition-transform duration-500 ease-in-out group-hover:-translate-y-4">
-                    <service.icon className="h-12 w-12 text-red-500 mb-4" aria-hidden="true" />
+                    <Icon className="h-12 w-12 text-red-500 mb-4" aria-hidden="true" />
                     <h3 className="text-3xl font-bold mb-3">{service.title}</h3>
                     <p className="text-gray-300 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500 max-h-0 group-hover:max-h-screen">{service.description}</p>
                     <span className="font-semibold text-red-500 flex items-center">
@@ -426,7 +230,8 @@ const ServicesHighlightSection: FC<{ navigateTo: (page: Page, service?: string |
                 </div>
             </div>
         </div>
-      ))}
+        );
+      })}
     </div>
   </Section>
 );
@@ -460,15 +265,16 @@ const ProcessSection: FC = () => {
     );
 };
 
-const TestimonialsSection: FC = () => {
+const TestimonialsSection: FC<{testimonials: Testimonial[]}> = ({ testimonials }) => {
     const [activeIndex, setActiveIndex] = useState(0);
 
     useEffect(() => {
+        if (!testimonials.length) return;
         const interval = setInterval(() => {
             setActiveIndex((current) => (current === testimonials.length - 1 ? 0 : current + 1));
         }, 5000);
         return () => clearInterval(interval);
-    }, []);
+    }, [testimonials]);
 
     const goToSlide = (index: number) => {
         setActiveIndex(index);
@@ -482,7 +288,11 @@ const TestimonialsSection: FC = () => {
         setActiveIndex((current) => (current === 0 ? testimonials.length - 1 : current - 1));
     };
     
-    if (!testimonials.length) return null;
+    if (!testimonials.length) return (
+        <Section id="testimonials" className="bg-gray-50">
+            <div className="text-center">Loading testimonials...</div>
+        </Section>
+    );
 
     return (
       <Section id="testimonials" className="bg-gray-50">
@@ -561,7 +371,7 @@ const CtaSection: FC<{ navigateTo: (page: Page) => void }> = ({ navigateTo }) =>
 );
 
 
-const HomePage: FC<{ navigateTo: (page: Page, service?: string | null) => void }> = ({ navigateTo }) => {
+const HomePage: FC<{ services: Service[], testimonials: Testimonial[], navigateTo: (page: Page, service?: string | null) => void }> = ({ services, testimonials, navigateTo }) => {
   const featuredArtist = artistShowcases[1];
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -628,7 +438,7 @@ const HomePage: FC<{ navigateTo: (page: Page, service?: string | null) => void }
                     ))}
                 </div>
             </Section>
-            <ServicesHighlightSection navigateTo={navigateTo} />
+            <ServicesHighlightSection services={services} navigateTo={navigateTo} />
             <ProcessSection />
 
             <Section id="featured-work" className="bg-gray-900 text-white">
@@ -660,7 +470,7 @@ const HomePage: FC<{ navigateTo: (page: Page, service?: string | null) => void }
                 </div>
             </Section>
             
-            <TestimonialsSection />
+            <TestimonialsSection testimonials={testimonials} />
             <CtaSection navigateTo={navigateTo} />
         </main>
     </div>
@@ -984,7 +794,7 @@ const AboutPage: FC<{navigateTo: (page: Page) => void}> = ({ navigateTo }) => {
     );
 };
 
-const ServicesPage: FC<{ navigateTo: (page: Page, service?: string | null) => void }> = ({ navigateTo }) => {
+const ServicesPage: FC<{ services: Service[], navigateTo: (page: Page, service?: string | null) => void }> = ({ services, navigateTo }) => {
     const categories: ServiceCategory[] = ['Production', 'Live Sound', 'Planning'];
     const allCategories: ('All' | ServiceCategory)[] = ['All', ...categories];
     const [activeFilter, setActiveFilter] = useState<'All' | ServiceCategory>('All');
@@ -1014,7 +824,10 @@ const ServicesPage: FC<{ navigateTo: (page: Page, service?: string | null) => vo
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {filteredServices.map(service => (
+                    {filteredServices.map(service => {
+                        const Icon = service.icon;
+                        if (!Icon) return null;
+                        return (
                         <div 
                             key={service.title}
                             className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col group transform hover:-translate-y-2 transition-transform duration-300"
@@ -1024,7 +837,7 @@ const ServicesPage: FC<{ navigateTo: (page: Page, service?: string | null) => vo
                             </div>
                             <div className="p-6 flex flex-col flex-grow">
                                 <div className="flex items-center mb-3 text-red-600">
-                                    <service.icon className="h-6 w-6 mr-3" />
+                                    <Icon className="h-6 w-6 mr-3" />
                                     <h3 className="text-xl font-bold text-gray-900">{service.title}</h3>
                                 </div>
                                 <p className="text-gray-600 mb-4 flex-grow">{service.description}</p>
@@ -1037,7 +850,8 @@ const ServicesPage: FC<{ navigateTo: (page: Page, service?: string | null) => vo
                                 </button>
                             </div>
                         </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </Section>
         </PageContent>
@@ -1045,7 +859,7 @@ const ServicesPage: FC<{ navigateTo: (page: Page, service?: string | null) => vo
 };
 
 
-const ServiceDetailPage: FC<{ serviceTitle: string; navigateTo: (page: Page) => void }> = ({ serviceTitle, navigateTo }) => {
+const ServiceDetailPage: FC<{ services: Service[], serviceTitle: string; navigateTo: (page: Page) => void }> = ({ services, serviceTitle, navigateTo }) => {
     const service = services.find(s => s.title === serviceTitle);
 
     if (!service) {
@@ -1220,7 +1034,7 @@ const GalleryPage: FC = () => {
     );
 };
 
-const ProductsPage: FC<{ navigateTo: (page: Page, detailItem?: string | null) => void }> = ({ navigateTo }) => {
+const ProductsPage: FC<{ products: Product[], navigateTo: (page: Page, detailItem?: string | null) => void }> = ({ products, navigateTo }) => {
     const categories: ProductCategory[] = ['Microphones', 'Speakers', 'Mixers', 'Lighting'];
     const allCategories: ('All' | ProductCategory)[] = ['All', ...categories];
     const [activeFilter, setActiveFilter] = useState<'All' | ProductCategory>('All');
@@ -1278,7 +1092,7 @@ const ProductsPage: FC<{ navigateTo: (page: Page, detailItem?: string | null) =>
     );
 };
 
-const ProductDetailPage: FC<{ productName: string; navigateTo: (page: Page) => void }> = ({ productName, navigateTo }) => {
+const ProductDetailPage: FC<{ products: Product[], productName: string; navigateTo: (page: Page) => void }> = ({ products, productName, navigateTo }) => {
     const product = products.find(p => p.name === productName);
 
     if (!product) {
@@ -1347,8 +1161,10 @@ const ProductDetailPage: FC<{ productName: string; navigateTo: (page: Page) => v
     );
 };
 
-const BookingPage: FC<{ appState: AppState }> = ({ appState }) => {
+const BookingPage: FC<{ appState: AppState, services: Service[] }> = ({ appState, services }) => {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [selectedService, setSelectedService] = useState('');
   const [subject, setSubject] = useState('');
 
@@ -1357,14 +1173,38 @@ const BookingPage: FC<{ appState: AppState }> = ({ appState }) => {
         setSubject(`Inquiry about product: ${appState.currentProduct}`);
     } else if (appState.currentService) {
         setSubject(`Inquiry about service: ${appState.currentService}`);
+        // FIX: Pre-select the service in the dropdown when navigating from a service page
+        setSelectedService(appState.currentService);
     } else {
         setSubject('');
     }
   }, [appState.currentProduct, appState.currentService]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsSubmitted(true);
+    setIsSubmitting(true);
+    setError(null);
+
+    const formData = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/booking`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        setIsSubmitted(true);
+    } catch (err) {
+        setError('Failed to submit booking request. Please try again later.');
+    } finally {
+        setIsSubmitting(false);
+    }
   };
 
   return (
@@ -1391,13 +1231,13 @@ const BookingPage: FC<{ appState: AppState }> = ({ appState }) => {
                 ) : (
                     <form onSubmit={handleSubmit}>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                            <input type="text" placeholder="Full Name" aria-label="Full Name" required className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"/>
-                            <input type="email" placeholder="Email Address" aria-label="Email Address" required className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"/>
-                            <input type="tel" placeholder="Phone Number" aria-label="Phone Number" className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"/>
-                            <input type="text" placeholder="Event Type (e.g., Concert, Wedding)" aria-label="Event Type" className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"/>
+                            <input name="fullName" type="text" placeholder="Full Name" aria-label="Full Name" required className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"/>
+                            <input name="email" type="email" placeholder="Email Address" aria-label="Email Address" required className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"/>
+                            <input name="phone" type="tel" placeholder="Phone Number" aria-label="Phone Number" className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"/>
+                            <input name="eventType" type="text" placeholder="Event Type (e.g., Concert, Wedding)" aria-label="Event Type" className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"/>
                         </div>
                         <div className="mb-6">
-                            <input type="text" placeholder="Subject" aria-label="Subject" value={subject} onChange={e => setSubject(e.target.value)} required className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"/>
+                            <input name="subject" type="text" placeholder="Subject" aria-label="Subject" value={subject} onChange={e => setSubject(e.target.value)} required className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"/>
                         </div>
                         <div className="mb-6">
                             <select
@@ -1416,13 +1256,14 @@ const BookingPage: FC<{ appState: AppState }> = ({ appState }) => {
                             </select>
                         </div>
                         <div className="mb-6">
-                             <input type="date" aria-label="Event Date" required className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-500"/>
+                             <input name="eventDate" type="date" aria-label="Event Date" required className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-500"/>
                         </div>
                         <div className="mb-6">
-                            <textarea placeholder="Tell us more about your event or product inquiry..." aria-label="Event Details" rows={6} required className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"></textarea>
+                            <textarea name="details" placeholder="Tell us more about your event or product inquiry..." aria-label="Event Details" rows={6} required className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"></textarea>
                         </div>
-                        <button type="submit" className="w-full bg-red-600 text-white font-bold py-4 px-8 rounded-lg hover:bg-red-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-red-500 focus:ring-opacity-50 text-lg">
-                            Submit Request
+                        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+                        <button type="submit" disabled={isSubmitting} className="w-full bg-red-600 text-white font-bold py-4 px-8 rounded-lg hover:bg-red-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-red-500 focus:ring-opacity-50 text-lg disabled:bg-gray-400 disabled:scale-100">
+                            {isSubmitting ? 'Submitting...' : 'Submit Request'}
                         </button>
                     </form>
                 )}
@@ -1435,10 +1276,31 @@ const BookingPage: FC<{ appState: AppState }> = ({ appState }) => {
 
 const ContactPage: FC = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsSubmitted(true);
+    setIsSubmitting(true);
+    setError(null);
+    const formData = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/contact`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        });
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        setIsSubmitted(true);
+    } catch (err) {
+        setError('Failed to send message. Please try again later.');
+    } finally {
+        setIsSubmitting(false);
+    }
   };
 
   const contactDetails = [
@@ -1468,12 +1330,13 @@ const ContactPage: FC = () => {
                       <h2 className="text-3xl font-bold text-gray-900 mb-6">Send us a Message</h2>
                       <form onSubmit={handleSubmit}>
                           <div className="grid grid-cols-1 gap-6 mb-6">
-                              <input type="text" placeholder="Your Name" aria-label="Your Name" required className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"/>
-                              <input type="email" placeholder="Your Email" aria-label="Your Email" required className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"/>
-                              <textarea placeholder="Your Message" aria-label="Your Message" rows={5} required className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"></textarea>
+                              <input name="name" type="text" placeholder="Your Name" aria-label="Your Name" required className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"/>
+                              <input name="email" type="email" placeholder="Your Email" aria-label="Your Email" required className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"/>
+                              <textarea name="message" placeholder="Your Message" aria-label="Your Message" rows={5} required className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"></textarea>
                           </div>
-                          <button type="submit" className="w-full bg-red-600 text-white font-bold py-4 px-8 rounded-lg hover:bg-red-700 transition-all duration-300">
-                              Send Message
+                          {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+                          <button type="submit" disabled={isSubmitting} className="w-full bg-red-600 text-white font-bold py-4 px-8 rounded-lg hover:bg-red-700 transition-all duration-300 disabled:bg-gray-400">
+                              {isSubmitting ? 'Sending...' : 'Send Message'}
                           </button>
                       </form>
                   </>
@@ -1615,6 +1478,45 @@ const App: FC = () => {
   ]);
   const [isAiTyping, setIsAiTyping] = useState(false);
 
+  const [services, setServices] = useState<Service[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+        try {
+            const [servicesRes, productsRes, testimonialsRes] = await Promise.all([
+                fetch(`${API_BASE_URL}/services`),
+                fetch(`${API_BASE_URL}/products`),
+                fetch(`${API_BASE_URL}/testimonials`),
+            ]);
+            
+            if (!servicesRes.ok || !productsRes.ok || !testimonialsRes.ok) {
+                throw new Error('Failed to fetch data from the server.');
+            }
+
+            const servicesData: Service[] = await servicesRes.json();
+            const productsData: Product[] = await productsRes.json();
+            const testimonialsData: Testimonial[] = await testimonialsRes.json();
+            
+            // Map icon names to actual components
+            const servicesWithIcons = servicesData.map(s => ({...s, icon: serviceIcons[s.iconName]}));
+
+            setServices(servicesWithIcons);
+            setProducts(productsData);
+            setTestimonials(testimonialsData);
+
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'An unknown error occurred');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    fetchData();
+  }, []);
+
   useEffect(() => {
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
@@ -1695,17 +1597,34 @@ const App: FC = () => {
   };
   
   const renderPage = () => {
+    if (isLoading) {
+        return (
+            <div className="h-screen flex items-center justify-center">
+                <div className="text-xl font-semibold">Loading...</div>
+            </div>
+        );
+    }
+    if (error) {
+        return (
+            <div className="h-screen flex items-center justify-center text-center p-4">
+                <div>
+                    <h2 className="text-2xl font-bold text-red-600">Failed to load content</h2>
+                    <p className="text-gray-600 mt-2">{error}</p>
+                </div>
+            </div>
+        );
+    }
     switch (appState.currentPage) {
-      case 'home': return <HomePage navigateTo={navigateTo} />;
+      case 'home': return <HomePage services={services} testimonials={testimonials} navigateTo={navigateTo} />;
       case 'about': return <AboutPage navigateTo={navigateTo} />;
-      case 'services': return <ServicesPage navigateTo={navigateTo} />;
-      case 'serviceDetail': return <ServiceDetailPage serviceTitle={appState.currentService!} navigateTo={navigateTo} />;
+      case 'services': return <ServicesPage services={services} navigateTo={navigateTo} />;
+      case 'serviceDetail': return <ServiceDetailPage services={services} serviceTitle={appState.currentService!} navigateTo={navigateTo} />;
       case 'gallery': return <GalleryPage />;
-      case 'products': return <ProductsPage navigateTo={navigateTo} />;
-      case 'productDetail': return <ProductDetailPage productName={appState.currentProduct!} navigateTo={navigateTo} />;
-      case 'booking': return <BookingPage appState={appState} />;
+      case 'products': return <ProductsPage products={products} navigateTo={navigateTo} />;
+      case 'productDetail': return <ProductDetailPage products={products} productName={appState.currentProduct!} navigateTo={navigateTo} />;
+      case 'booking': return <BookingPage appState={appState} services={services} />;
       case 'contact': return <ContactPage />;
-      default: return <HomePage navigateTo={navigateTo} />;
+      default: return <HomePage services={services} testimonials={testimonials} navigateTo={navigateTo} />;
     }
   };
 
