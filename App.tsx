@@ -1,7 +1,13 @@
-
 import React, { useState, FC, ReactNode, useRef, useEffect } from 'react';
 import { Page } from './types';
-import { Music, MonitorSpeaker, Mic, Headphones, Cable, Menu, X, Facebook, Twitter, Instagram, Linkedin, PartyPopper, Phone, Mail, MapPin, Quote, CheckCircle, PlayCircle, MessageSquare, ClipboardList, Play, Award, Heart, Star, Users, Pause, Link, Share2, Volume2, Volume1, VolumeX, ChevronLeft, ChevronRight, Speaker, Send, ShoppingCart, Info } from 'lucide-react';
+import { 
+  Music, MonitorSpeaker, Mic, Headphones, Cable, Menu, X, Facebook, Twitter, Instagram, Linkedin, 
+  PartyPopper, Phone, Mail, MapPin, Quote, CheckCircle, PlayCircle, MessageSquare, ClipboardList, 
+  Play, Award, Heart, Star, Users, Pause, Link, Share2, Volume2, Volume1, VolumeX, ChevronLeft, 
+  ChevronRight, Speaker, Send, ShoppingCart, Info, Calendar, User, Clock, Square,
+  // Add the missing icons:
+  Lightbulb, Video, Layers, Zap, Palette, BarChart3, Theater
+} from 'lucide-react';
 import { GoogleGenAI, Chat } from '@google/genai';
 
 const API_BASE_URL = 'http://localhost:3001/api';
@@ -25,8 +31,9 @@ interface NavLinkProps {
 type ServiceCategory = 'Production' | 'Live Sound' | 'Planning';
 
 interface Service {
-  iconName: string; // Changed from React.ElementType to string
-  icon?: React.ElementType; // Keep this for frontend rendering
+  id: number;
+  iconName: string;
+  icon?: React.ElementType;
   title: string;
   description: string;
   longDescription: string;
@@ -37,6 +44,7 @@ interface Service {
 }
 
 interface Testimonial {
+  id: number;
   quote: string;
   author: string;
   event: string;
@@ -46,12 +54,6 @@ interface Testimonial {
 interface GalleryImage {
   src: string;
   caption: string;
-}
-
-interface TeamMember {
-    name: string;
-    title: string;
-    avatar: string;
 }
 
 interface ArtistShowcase {
@@ -73,16 +75,32 @@ interface ChatMessage {
 type ProductCategory = 'Microphones' | 'Speakers' | 'Mixers' | 'Lighting';
 
 interface Product {
-    id: number;
-    name: string;
-    category: ProductCategory;
-    brand: string;
-    image: string;
-    description: string;
-    longDescription: string;
-    specs: { key: string; value: string }[];
+  id: number;
+  name: string;
+  category: ProductCategory;
+  brand: string;
+  image: string;
+  description: string;
+  longDescription: string;
+  specs: { key: string; value: string }[];
 }
 
+interface BookingFormData {
+  fullName: string;
+  email: string;
+  phone: string;
+  eventType: string;
+  subject: string;
+  service: string;
+  eventDate: string;
+  details: string;
+}
+
+interface ContactFormData {
+  name: string;
+  email: string;
+  message: string;
+}
 
 // ~~~ HELPER DATA ~~~
 const navLinks: { page: Page; title: string }[] = [
@@ -96,70 +114,65 @@ const navLinks: { page: Page; title: string }[] = [
 ];
 
 const serviceIcons: { [key: string]: React.ElementType } = {
-    Music,
-    MonitorSpeaker,
-    Mic,
-    Headphones,
-    Cable,
-    PartyPopper,
+  Music,
+  MonitorSpeaker,
+  Mic,
+  Headphones,
+  Cable,
+  PartyPopper,
 };
 
-
 const galleryImages: GalleryImage[] = [
-    { src: '/public/images/gallery/e1.jpeg', caption: 'Live concert setup with vibrant stage lights' },
-    { src: '/public/images/gallery/e2.jpeg', caption: 'Corporate event audio-visual arrangement' },
-    { src: '/public/images/gallery/e3.jpeg', caption: 'Intimate wedding reception sound system' },
-    { src: '/public/images/gallery/e4.jpeg', caption: 'Music festival main stage production' },
-    { src: '/public/images/gallery/e5.jpeg', caption: 'Studio recording session in progress' },
-    { src: '/public/images/gallery/e6.jpeg', caption: 'Outdoor event sound reinforcement' },
-    { src: '/public/images/gallery/e7.jpeg', caption: 'DJ booth with professional equipment' },
-    { src: '/public/images/gallery/e8.jpeg', caption: 'Detailed shot of a mixing console' },
-    { src: '/public/images/gallery/e9.jpeg', caption: 'Team setting up for a large-scale event' },
-    { src: '/public/images/gallery/e10.jpeg', caption: 'Team setting up for a large-scale event' },
-    { src: '/public/images/gallery/e11.jpeg', caption: 'Team setting up for a large-scale event' },
-    { src: '/public/images/gallery/e15.jpeg', caption: 'Team setting up for a large-scale event' },
+  { src: '/images/gallery/e1.jpeg', caption: 'Live concert setup with vibrant stage lights' },
+  { src: '/images/gallery/e2.jpeg', caption: 'Corporate event audio-visual arrangement' },
+  { src: '/images/gallery/e3.jpeg', caption: 'Intimate wedding reception sound system' },
+  { src: '/images/gallery/e4.jpeg', caption: 'Music festival main stage production' },
+  { src: '/images/gallery/e5.jpeg', caption: 'Studio recording session in progress' },
+  { src: '/images/gallery/e6.jpeg', caption: 'Outdoor event sound reinforcement' },
+  { src: '/images/gallery/e7.jpeg', caption: 'DJ booth with professional equipment' },
+  { src: '/images/gallery/e8.jpeg', caption: 'Detailed shot of a mixing console' },
+  { src: '/images/gallery/e9.jpeg', caption: 'Team setting up for a large-scale event' },
+  { src: '/images/gallery/e10.jpeg', caption: 'Team setting up for a large-scale event' },
+  { src: '/images/gallery/e11.jpeg', caption: 'Team setting up for a large-scale event' },
+  { src: '/images/gallery/e15.jpeg', caption: 'Team setting up for a large-scale event' },
 ];
-
 
 const artistShowcases: ArtistShowcase[] = [
-    {
-        artistName: "Made Kuti",
-        albumArt: "/public/images/artists/Mide.jpeg",
-        trackTitle: "The Homeland",
-        trackUrl: "https://cdn.trendybeatz.com/audio/Burna-Boy-23.mp3",
-        description: "Song by Busy Signal, Made Kuti, and Morgan Heritage",
-        genre: 'Afrobeat',
-    },
-    {
-        artistName: "Nathaniel Bassey",
-        albumArt: "/public/images/artists/Bassy.jpg",
-        trackTitle: "The River",
-        trackUrl: "https://cdn.pixabay.com/download/audio/2022/08/04/audio_2d02511475.mp3",
-        description: "We Come Before Your Presence · Nathaniel Bassey · Yahweh Sabaoth · Nathaniel Bassey",
-        genre: 'Gospel',
-    },
-    {
-        artistName: "Naira Marley",
-        albumArt: "/public/images/artists/Naira.jpeg",
-        trackTitle: "Soapy",
-        trackUrl: "https://cdn.pixabay.com/download/audio/2022/05/23/audio_784133496c.mp3",
-        description: "Soapy” appears to be crude song about masturbation but that is just what Naira wants “the powers that be” to think",
-        genre: 'Afrobeat',
-    },
-    {
-        artistName: "Sunmisola Agbebi",
-        albumArt: "/public/images/artists/Sumi.jpg",
-        trackTitle: "Prevalling Worship",
-        trackUrl: "https://cdn.pixabay.com/download/audio/2022/09/26/audio_55392b5123.mp3",
-        description: "Prevailing Worship from Prevailing Worship by Yinka Okeleye, Sunmisola Agbebi & Moses Bliss now.",
-        genre: 'Gospel',
-    },
-    
+  {
+    artistName: "Made Kuti",
+    albumArt: "/images/artists/Mide.jpeg",
+    trackTitle: "The Homeland",
+    trackUrl: "https://cdn.trendybeatz.com/audio/Burna-Boy-23.mp3",
+    description: "Song by Busy Signal, Made Kuti, and Morgan Heritage",
+    genre: 'Afrobeat',
+  },
+  {
+    artistName: "Nathaniel Bassey",
+    albumArt: "/images/artists/Bassy.jpg",
+    trackTitle: "The River",
+    trackUrl: "https://cdn.pixabay.com/download/audio/2022/08/04/audio_2d02511475.mp3",
+    description: "We Come Before Your Presence · Nathaniel Bassey · Yahweh Sabaoth · Nathaniel Bassey",
+    genre: 'Gospel',
+  },
+  {
+    artistName: "Naira Marley",
+    albumArt: "/images/artists/Naira.jpeg",
+    trackTitle: "Soapy",
+    trackUrl: "https://cdn.pixabay.com/download/audio/2022/05/23/audio_784133496c.mp3",
+    description: "Soapy appears to be crude song about masturbation but that is just what Naira wants the powers that be to think",
+    genre: 'Afrobeat',
+  },
+  {
+    artistName: "Sunmisola Agbebi",
+    albumArt: "/images/artists/Sumi.jpg",
+    trackTitle: "Prevalling Worship",
+    trackUrl: "https://cdn.pixabay.com/download/audio/2022/09/26/audio_55392b5123.mp3",
+    description: "Prevailing Worship from Prevailing Worship by Yinka Okeleye, Sunmisola Agbebi & Moses Bliss now.",
+    genre: 'Gospel',
+  },
 ];
 
-
 // ~~~ REUSABLE COMPONENTS ~~~
-
 const Section: FC<{ children: ReactNode; id: string; className?: string }> = ({ children, id, className = '' }) => (
   <section id={id} className={`py-24 px-4 sm:px-6 lg:px-8 ${className}`}>
     <div className="max-w-7xl mx-auto">
@@ -186,9 +199,7 @@ const NavLink: FC<NavLinkProps> = ({ page, appState, navigateTo, children, isMob
   );
 };
 
-
 // ~~~ PAGE COMPONENTS ~~~
-
 const ServicesHighlightSection: FC<{ services: Service[], navigateTo: (page: Page, service?: string | null) => void }> = ({ services, navigateTo }) => (
   <Section id="home-services" className="bg-gray-50">
     <div className="text-center mb-16">
@@ -237,109 +248,109 @@ const ServicesHighlightSection: FC<{ services: Service[], navigateTo: (page: Pag
 );
 
 const ProcessSection: FC = () => {
-    const steps = [
-        { icon: MessageSquare, title: "Consultation", description: "We start by understanding your vision, goals, and requirements." },
-        { icon: ClipboardList, title: "Planning & Design", description: "Our experts craft a detailed plan, from technical specs to creative design." },
-        { icon: Play, title: "Flawless Execution", description: "Our professional crew brings the plan to life with precision and passion." },
-        { icon: Award, title: "Unforgettable Success", description: "We deliver a memorable experience that exceeds all expectations." },
-    ];
+  const steps = [
+      { icon: MessageSquare, title: "Consultation", description: "We start by understanding your vision, goals, and requirements." },
+      { icon: ClipboardList, title: "Planning & Design", description: "Our experts craft a detailed plan, from technical specs to creative design." },
+      { icon: Play, title: "Flawless Execution", description: "Our professional crew brings the plan to life with precision and passion." },
+      { icon: Award, title: "Unforgettable Success", description: "We deliver a memorable experience that exceeds all expectations." },
+  ];
 
-    return (
-        <Section id="process">
-            <div className="text-center mb-16">
-                <h2 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">Your Vision, Our Blueprint</h2>
-                <p className="text-red-600 mt-4 text-lg">Our Simple Path to Your Perfect Event</p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-                {steps.map((step, index) => (
-                    <div key={step.title} className="text-center p-8 bg-white rounded-xl shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 ease-in-out transform border-t-4 border-red-200 hover:border-red-500">
-                        <div className="flex items-center justify-center h-16 w-16 rounded-full bg-red-100 text-red-600 mx-auto mb-6">
-                            <step.icon className="h-8 w-8" />
-                        </div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">{step.title}</h3>
-                        <p className="text-gray-600">{step.description}</p>
-                    </div>
-                ))}
-            </div>
-        </Section>
-    );
+  return (
+      <Section id="process">
+          <div className="text-center mb-16">
+              <h2 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">Your Vision, Our Blueprint</h2>
+              <p className="text-red-600 mt-4 text-lg">Our Simple Path to Your Perfect Event</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+              {steps.map((step, index) => (
+                  <div key={step.title} className="text-center p-8 bg-white rounded-xl shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 ease-in-out transform border-t-4 border-red-200 hover:border-red-500">
+                      <div className="flex items-center justify-center h-16 w-16 rounded-full bg-red-100 text-red-600 mx-auto mb-6">
+                          <step.icon className="h-8 w-8" />
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900 mb-2">{step.title}</h3>
+                      <p className="text-gray-600">{step.description}</p>
+                  </div>
+              ))}
+          </div>
+      </Section>
+  );
 };
 
 const TestimonialsSection: FC<{testimonials: Testimonial[]}> = ({ testimonials }) => {
-    const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
 
-    useEffect(() => {
-        if (!testimonials.length) return;
-        const interval = setInterval(() => {
-            setActiveIndex((current) => (current === testimonials.length - 1 ? 0 : current + 1));
-        }, 5000);
-        return () => clearInterval(interval);
-    }, [testimonials]);
+  useEffect(() => {
+      if (!testimonials.length) return;
+      const interval = setInterval(() => {
+          setActiveIndex((current) => (current === testimonials.length - 1 ? 0 : current + 1));
+      }, 5000);
+      return () => clearInterval(interval);
+  }, [testimonials]);
 
-    const goToSlide = (index: number) => {
-        setActiveIndex(index);
-    };
+  const goToSlide = (index: number) => {
+      setActiveIndex(index);
+  };
 
-    const nextSlide = () => {
-        setActiveIndex((current) => (current === testimonials.length - 1 ? 0 : current + 1));
-    };
+  const nextSlide = () => {
+      setActiveIndex((current) => (current === testimonials.length - 1 ? 0 : current + 1));
+  };
 
-    const prevSlide = () => {
-        setActiveIndex((current) => (current === 0 ? testimonials.length - 1 : current - 1));
-    };
-    
-    if (!testimonials.length) return (
-        <Section id="testimonials" className="bg-gray-50">
-            <div className="text-center">Loading testimonials...</div>
-        </Section>
-    );
-
-    return (
+  const prevSlide = () => {
+      setActiveIndex((current) => (current === 0 ? testimonials.length - 1 : current - 1));
+  };
+  
+  if (!testimonials.length) return (
       <Section id="testimonials" className="bg-gray-50">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">What Our Clients Say</h2>
-          <p className="text-red-600 mt-4 text-lg">Stories of Success from Events Like Yours</p>
-        </div>
-        <div className="relative max-w-3xl mx-auto">
-            <div className="overflow-hidden relative min-h-[350px] flex items-center justify-center">
-                {testimonials.map((testimonial, index) => (
-                    <div
-                        key={index}
-                        className={`transition-opacity duration-700 ease-in-out absolute w-full ${activeIndex === index ? 'opacity-100' : 'opacity-0'}`}
-                    >
-                        {activeIndex === index && (
-                             <div className="bg-white rounded-xl shadow-lg p-8 flex flex-col text-center animate-fade-in">
-                                <img className="w-20 h-20 rounded-full mx-auto mb-4" src={testimonial.avatar} alt={`Avatar of ${testimonial.author}`} />
-                                <Quote className="w-10 h-10 text-red-300 mb-4 mx-auto" aria-hidden="true"/>
-                                <p className="text-gray-600 italic text-lg mb-6 flex-grow">"{testimonial.quote}"</p>
-                                <div className="mt-auto">
-                                    <p className="font-bold text-xl text-gray-900">{testimonial.author}</p>
-                                    <p className="text-md text-gray-500">{testimonial.event}</p>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                ))}
-            </div>
-             <button onClick={prevSlide} aria-label="Previous testimonial" className="absolute top-1/2 -left-4 md:-left-16 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500">
-                <ChevronLeft className="h-6 w-6 text-gray-700" />
-            </button>
-            <button onClick={nextSlide} aria-label="Next testimonial" className="absolute top-1/2 -right-4 md:-right-16 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500">
-                <ChevronRight className="h-6 w-6 text-gray-700" />
-            </button>
-            <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 flex space-x-2">
-                {testimonials.map((_, index) => (
-                    <button
-                        key={index}
-                        onClick={() => goToSlide(index)}
-                        aria-label={`Go to testimonial ${index + 1}`}
-                        className={`w-3 h-3 rounded-full transition-colors ${activeIndex === index ? 'bg-red-600' : 'bg-gray-300 hover:bg-gray-400'}`}
-                    ></button>
-                ))}
-            </div>
-        </div>
+          <div className="text-center">Loading testimonials...</div>
       </Section>
-    );
+  );
+
+  return (
+    <Section id="testimonials" className="bg-gray-50">
+      <div className="text-center mb-16">
+        <h2 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">What Our Clients Say</h2>
+        <p className="text-red-600 mt-4 text-lg">Stories of Success from Events Like Yours</p>
+      </div>
+      <div className="relative max-w-3xl mx-auto">
+          <div className="overflow-hidden relative min-h-[350px] flex items-center justify-center">
+              {testimonials.map((testimonial, index) => (
+                  <div
+                      key={index}
+                      className={`transition-opacity duration-700 ease-in-out absolute w-full ${activeIndex === index ? 'opacity-100' : 'opacity-0'}`}
+                  >
+                      {activeIndex === index && (
+                           <div className="bg-white rounded-xl shadow-lg p-8 flex flex-col text-center animate-fade-in">
+                              <img className="w-20 h-20 rounded-full mx-auto mb-4" src={testimonial.avatar} alt={`Avatar of ${testimonial.author}`} />
+                              <Quote className="w-10 h-10 text-red-300 mb-4 mx-auto" aria-hidden="true"/>
+                              <p className="text-gray-600 italic text-lg mb-6 flex-grow">"{testimonial.quote}"</p>
+                              <div className="mt-auto">
+                                  <p className="font-bold text-xl text-gray-900">{testimonial.author}</p>
+                                  <p className="text-md text-gray-500">{testimonial.event}</p>
+                              </div>
+                          </div>
+                      )}
+                  </div>
+              ))}
+          </div>
+           <button onClick={prevSlide} aria-label="Previous testimonial" className="absolute top-1/2 -left-4 md:-left-16 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500">
+              <ChevronLeft className="h-6 w-6 text-gray-700" />
+          </button>
+          <button onClick={nextSlide} aria-label="Next testimonial" className="absolute top-1/2 -right-4 md:-right-16 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500">
+              <ChevronRight className="h-6 w-6 text-gray-700" />
+          </button>
+          <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 flex space-x-2">
+              {testimonials.map((_, index) => (
+                  <button
+                      key={index}
+                      onClick={() => goToSlide(index)}
+                      aria-label={`Go to testimonial ${index + 1}`}
+                      className={`w-3 h-3 rounded-full transition-colors ${activeIndex === index ? 'bg-red-600' : 'bg-gray-300 hover:bg-gray-400'}`}
+                  ></button>
+              ))}
+          </div>
+      </div>
+    </Section>
+  );
 };
 
 const CtaSection: FC<{ navigateTo: (page: Page) => void }> = ({ navigateTo }) => (
@@ -370,7 +381,6 @@ const CtaSection: FC<{ navigateTo: (page: Page) => void }> = ({ navigateTo }) =>
   </section>
 );
 
-
 const HomePage: FC<{ services: Service[], testimonials: Testimonial[], navigateTo: (page: Page, service?: string | null) => void }> = ({ services, testimonials, navigateTo }) => {
   const featuredArtist = artistShowcases[1];
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -381,7 +391,9 @@ const HomePage: FC<{ services: Service[], testimonials: Testimonial[], navigateT
         if (isPlaying) {
             audioRef.current.pause();
         } else {
-            audioRef.current.play();
+            audioRef.current.play().catch(error => {
+              console.error('Error playing audio:', error);
+            });
         }
         setIsPlaying(!isPlaying);
     }
@@ -495,853 +507,2041 @@ const PageContent: FC<{ title: string; subtitle: string; children: ReactNode }> 
   </div>
 );
 
-const ArtistShowcaseSection: FC = () => {
-    const soundGenres = ['All', 'Gospel', 'Rock', 'Hip-Hop', 'Pop', 'Afrobeat'];
-    const [activeFilter, setActiveFilter] = useState('All');
-    const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null);
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [copiedTrack, setCopiedTrack] = useState<string | null>(null);
-    const [currentTime, setCurrentTime] = useState(0);
-    const [duration, setDuration] = useState(0);
-    const [volume, setVolume] = useState(1);
-    const [prevVolume, setPrevVolume] = useState(1);
-    const audioRef = useRef<HTMLAudioElement>(null);
-
-    const filteredShowcases = artistShowcases.filter(showcase => activeFilter === 'All' || showcase.genre === activeFilter);
-
-    useEffect(() => {
-        const audio = audioRef.current;
-        if (!audio) return;
-
-        const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
-        const handleLoadedMetadata = () => setDuration(audio.duration);
-        const handleVolumeChange = () => setVolume(audio.volume);
-        const handleEnded = () => setIsPlaying(false);
-
-        audio.addEventListener('timeupdate', handleTimeUpdate);
-        audio.addEventListener('loadedmetadata', handleLoadedMetadata);
-        audio.addEventListener('volumechange', handleVolumeChange);
-        audio.addEventListener('ended', handleEnded);
-
-        return () => {
-            audio.removeEventListener('timeupdate', handleTimeUpdate);
-            audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
-            audio.removeEventListener('volumechange', handleVolumeChange);
-            audio.removeEventListener('ended', handleEnded);
-        };
-    }, []);
-
-    useEffect(() => {
-        const audio = audioRef.current;
-        if (!audio) return;
-        
-        if (currentlyPlaying) {
-            if (audio.src !== currentlyPlaying) {
-                audio.src = currentlyPlaying;
-            }
-            if (isPlaying) {
-                audio.play().catch(e => console.error("Audio play failed:", e));
-            } else {
-                audio.pause();
-            }
-        }
-    }, [isPlaying, currentlyPlaying]);
-
-    const handlePlayPause = (trackUrl: string) => {
-        if (currentlyPlaying === trackUrl) {
-            setIsPlaying(!isPlaying);
-        } else {
-            setCurrentlyPlaying(trackUrl);
-            setIsPlaying(true);
-        }
-    };
-
-    const handleCopyLink = (trackTitle: string) => {
-        const url = window.location.href;
-        navigator.clipboard.writeText(url).then(() => {
-            setCopiedTrack(trackTitle);
-            setTimeout(() => setCopiedTrack(null), 2000);
-        }).catch(err => console.error('Failed to copy text: ', err));
-    };
-
-    const formatTime = (timeInSeconds: number) => {
-        if (isNaN(timeInSeconds) || timeInSeconds === 0) return '0:00';
-        const minutes = Math.floor(timeInSeconds / 60);
-        const seconds = Math.floor(timeInSeconds % 60);
-        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-    };
-
-    const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
-        const audio = audioRef.current;
-        if (!audio || !isFinite(duration)) return;
-        const progressBar = e.currentTarget;
-        const clickPosition = e.clientX - progressBar.getBoundingClientRect().left;
-        const progressBarWidth = progressBar.offsetWidth;
-        const seekTime = (clickPosition / progressBarWidth) * duration;
-        audio.currentTime = seekTime;
-    };
-
-    const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const audio = audioRef.current;
-        if (!audio) return;
-        const newVolume = parseFloat(e.target.value);
-        audio.volume = newVolume;
-    };
-
-    const toggleMute = () => {
-        const audio = audioRef.current;
-        if (!audio) return;
-        if (volume > 0) {
-            setPrevVolume(volume);
-            audio.volume = 0;
-        } else {
-            audio.volume = prevVolume;
-        }
-    };
-
-    const VolumeIcon = () => {
-        if (volume === 0) return <VolumeX size={22} />;
-        if (volume < 0.5) return <Volume1 size={22} />;
-        return <Volume2 size={22} />;
-    };
-
-    return (
-        <Section id="artist-showcase" className="bg-gray-50">
-            <audio ref={audioRef} />
-            <div className="text-center mb-16">
-                <h2 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">Featured Artist Collaborations</h2>
-                <p className="text-red-600 mt-4 text-lg">Hear the quality and creativity we bring to every project we touch.</p>
-            </div>
-            
-            <div className="flex justify-center mb-12">
-                <div className="bg-white p-2 rounded-full shadow-md flex-wrap inline-flex">
-                    {soundGenres.map(genre => (
-                        <button
-                            key={genre}
-                            onClick={() => setActiveFilter(genre)}
-                            aria-pressed={activeFilter === genre}
-                            className={`px-4 sm:px-6 py-2 m-1 rounded-full text-sm sm:text-base font-medium transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 ${
-                                activeFilter === genre
-                                    ? 'bg-red-600 text-white shadow'
-                                    : 'bg-transparent text-gray-600 hover:bg-gray-100'
-                            }`}
-                        >
-                            {genre}
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {filteredShowcases.map(showcase => {
-                    const isActiveTrack = currentlyPlaying === showcase.trackUrl;
-                    const isCurrentlyPlaying = isActiveTrack && isPlaying;
-                    const shareUrl = window.location.href;
-                    const shareText = `Check out "${showcase.trackTitle}" by ${showcase.artistName}! Produced by Boyal Integrated Service.`;
-                    const twitterShareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
-                    const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
-
-                    return (
-                        <div key={showcase.trackTitle} className={`bg-white rounded-lg shadow-lg overflow-hidden flex flex-col group transition-shadow duration-300 ${isActiveTrack ? 'ring-2 ring-red-500' : ''}`}>
-                            <div className="relative">
-                                <img src={showcase.albumArt} alt={`Album art for ${showcase.trackTitle}`} className="w-full h-64 object-cover" />
-                                <button 
-                                    onClick={() => handlePlayPause(showcase.trackUrl)}
-                                    aria-label={isCurrentlyPlaying ? `Pause ${showcase.trackTitle}` : `Play ${showcase.trackTitle}`}
-                                    className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 flex items-center justify-center transition-all duration-300 opacity-0 group-hover:opacity-100 focus:opacity-100 focus:bg-opacity-50 focus:outline-none"
-                                >
-                                    {isCurrentlyPlaying ? (
-                                        <Pause className="h-16 w-16 text-white drop-shadow-lg" />
-                                    ) : (
-                                        <Play className="h-16 w-16 text-white drop-shadow-lg" />
-                                    )}
-                                </button>
-                            </div>
-                            <div className="p-6 flex flex-col flex-grow">
-                                <h3 className="text-xl font-bold text-gray-900">{showcase.trackTitle}</h3>
-                                <p className="text-md text-red-600 mb-2">{showcase.artistName}</p>
-                                <p className="text-gray-600 text-sm flex-grow">{showcase.description}</p>
-                                
-                                {isActiveTrack && (
-                                    <div className="mt-4 pt-4 border-t border-gray-200 space-y-3 animate-fade-in">
-                                        <div className="flex items-center space-x-2">
-                                            <span className="text-xs font-mono text-gray-500 w-10 text-left">{formatTime(currentTime)}</span>
-                                            <div onClick={handleSeek} className="w-full h-2 bg-gray-200 rounded-full cursor-pointer group/progress">
-                                                <div style={{ width: `${(duration > 0 ? (currentTime / duration) : 0) * 100}%` }} className="h-full bg-red-600 rounded-full relative transition-all duration-75 ease-linear">
-                                                     <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full border-2 border-red-600 opacity-0 group-hover/progress:opacity-100 transition-opacity"></div>
-                                                </div>
-                                            </div>
-                                            <span className="text-xs font-mono text-gray-500 w-10 text-right">{formatTime(duration)}</span>
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center space-x-2 w-1/3">
-                                                <button onClick={toggleMute} aria-label={volume > 0 ? 'Mute' : 'Unmute'} className="text-gray-500 hover:text-red-600 transition-colors">
-                                                    <VolumeIcon />
-                                                </button>
-                                                <input
-                                                    type="range"
-                                                    min="0" max="1" step="0.01"
-                                                    value={volume}
-                                                    onChange={handleVolumeChange}
-                                                    aria-label="Volume"
-                                                    className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-red-600"
-                                                />
-                                            </div>
-                                            <div className="w-1/3 flex justify-center">
-                                                 <button onClick={() => setIsPlaying(!isPlaying)} className="bg-red-600 text-white rounded-full p-2 hover:bg-red-700 shadow-md">
-                                                    {isPlaying ? <Pause size={18} /> : <Play size={18} />}
-                                                </button>
-                                            </div>
-                                            <div className="w-1/3"></div>
-                                        </div>
-                                    </div>
-                                )}
-                                
-                                <div className={`mt-4 pt-4 ${!isActiveTrack ? 'border-t' : ''} border-gray-200 flex items-center justify-between`}>
-                                    <p className="text-sm font-semibold text-gray-700 flex items-center"><Share2 size={16} className="mr-2"/> Share</p>
-                                    <div className="flex items-center space-x-2">
-                                        <a href={twitterShareUrl} target="_blank" rel="noopener noreferrer" aria-label="Share on Twitter" className="text-gray-500 hover:text-blue-500 transition-colors p-2 rounded-full hover:bg-gray-100"><Twitter size={20}/></a>
-                                        <a href={facebookShareUrl} target="_blank" rel="noopener noreferrer" aria-label="Share on Facebook" className="text-gray-500 hover:text-blue-700 transition-colors p-2 rounded-full hover:bg-gray-100"><Facebook size={20}/></a>
-                                        <button onClick={() => handleCopyLink(showcase.trackTitle)} aria-label="Copy link" className="text-gray-500 hover:text-red-600 transition-colors p-2 rounded-full hover:bg-gray-100 w-20 text-center">
-                                            {copiedTrack === showcase.trackTitle ? 'Copied!' : <Link size={20} className="mx-auto" />}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
-        </Section>
-    );
-};
-
-const AboutPage: FC<{navigateTo: (page: Page) => void}> = ({ navigateTo }) => {
-    const values = [
-        { icon: Heart, title: "Passion", description: "Our work is driven by a deep love for creating incredible audio-visual experiences." },
-        { icon: Star, title: "Excellence", description: "We uphold the highest standards, using top-tier equipment and expert techniques." },
-        { icon: Users, title: "Partnership", description: "We collaborate closely with our clients, treating their vision as our own." },
-    ];
-
-    const stats = [
-        { value: "10+", label: "Years of Experience" },
-        { value: "500+", label: "Successful Events" },
-        { value: "100%", label: "Passion for Perfection" },
-    ];
-
-    return (
-        <PageContent title="About Us" subtitle="The Passion and Expertise Behind Every Event">
-            {/* Our Story Section */}
-            <Section id="our-story" className="bg-white">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-                    <div className="prose prose-lg max-w-none text-gray-600">
-                        <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Journey in Sound</h2>
-                        <p>
-                            Founded over a decade ago with a single microphone and an immense passion for audio, Boyal Integrated Service has grown into a premier provider of production and event services. Our philosophy is simple: combine cutting-edge technology with creative artistry to produce experiences that resonate.
-                        </p>
-                        <p>
-                            We believe thatevery event, from a corporate conference to a sold-out concert, is a unique story waiting to be told. Our role is to provide the perfect sonic and visual backdrop for that story. We are a team of engineers, planners, and artists dedicated to the pursuit of perfection.
-                        </p>
-                    </div>
-                    <div>
-                        <img 
-                            src="/public/images/services/concert.jpeg" 
-                            alt="The Boyal Integrated Service team collaborating in their studio." 
-                            className="rounded-xl shadow-2xl w-full h-auto object-cover"
-                        />
-                    </div>
-                </div>
-            </Section>
-
-            {/* Stats Section */}
-            <section className="bg-gray-900 py-16">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-                        {stats.map((stat) => (
-                            <div key={stat.label}>
-                                <p className="text-5xl font-extrabold text-red-500">{stat.value}</p>
-                                <p className="mt-2 text-lg font-medium text-gray-300">{stat.label}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* Core Values Section */}
-            <Section id="core-values" className="bg-gray-50">
-                 <div className="text-center mb-16">
-                    <h2 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">Our Core Values</h2>
-                    <p className="text-red-600 mt-4 text-lg">The Principles That Guide Us</p>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {values.map((value) => (
-                        <div key={value.title} className="text-center p-8 bg-white rounded-xl shadow-lg border-t-4 border-red-500">
-                            <div className="flex items-center justify-center h-16 w-16 rounded-full bg-red-100 text-red-600 mx-auto mb-6">
-                                <value.icon className="h-8 w-8" />
-                            </div>
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">{value.title}</h3>
-                            <p className="text-gray-600">{value.description}</p>
-                        </div>
-                    ))}
-                </div>
-            </Section>
-
-            
-            
-            <ArtistShowcaseSection />
-            <CtaSection navigateTo={navigateTo} />
-        </PageContent>
-    );
-};
-
+// Services Page
 const ServicesPage: FC<{ services: Service[], navigateTo: (page: Page, service?: string | null) => void }> = ({ services, navigateTo }) => {
-    const categories: ServiceCategory[] = ['Production', 'Live Sound', 'Planning'];
-    const allCategories: ('All' | ServiceCategory)[] = ['All', ...categories];
-    const [activeFilter, setActiveFilter] = useState<'All' | ServiceCategory>('All');
+  const categories: ServiceCategory[] = ['Production', 'Live Sound', 'Planning'];
+  const allCategories: ('All' | ServiceCategory)[] = ['All', ...categories];
+  const [activeFilter, setActiveFilter] = useState<'All' | ServiceCategory>('All');
 
-    const filteredServices = services.filter(service => activeFilter === 'All' || service.category === activeFilter);
-
-    return (
-        <PageContent title="Our Services" subtitle="Comprehensive Solutions for Audio, Video, and Event Production">
-            <Section id="services-list" className="bg-gray-50">
-                <div className="flex justify-center mb-12">
-                    <div className="bg-white p-2 rounded-full shadow-md">
-                        {allCategories.map(category => (
-                            <button
-                                key={category}
-                                onClick={() => setActiveFilter(category)}
-                                aria-pressed={activeFilter === category}
-                                className={`px-4 sm:px-6 py-2 rounded-full text-sm sm:text-base font-medium transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 ${
-                                    activeFilter === category
-                                        ? 'bg-red-600 text-white shadow'
-                                        : 'bg-transparent text-gray-600 hover:bg-gray-100'
-                                }`}
-                            >
-                                {category}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {filteredServices.map(service => {
-                        const Icon = service.icon;
-                        if (!Icon) return null;
-                        return (
-                        <div 
-                            key={service.title}
-                            className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col group transform hover:-translate-y-2 transition-transform duration-300"
-                        >
-                            <div className="relative h-56 overflow-hidden">
-                                <img src={service.image} alt={service.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                            </div>
-                            <div className="p-6 flex flex-col flex-grow">
-                                <div className="flex items-center mb-3 text-red-600">
-                                    <Icon className="h-6 w-6 mr-3" />
-                                    <h3 className="text-xl font-bold text-gray-900">{service.title}</h3>
-                                </div>
-                                <p className="text-gray-600 mb-4 flex-grow">{service.description}</p>
-                                <button
-                                    onClick={() => navigateTo('serviceDetail', service.title)}
-                                    className="mt-auto self-start font-semibold text-red-600 hover:text-red-800 transition-colors duration-300 flex items-center group"
-                                >
-                                    Learn More
-                                    <span className="ml-2 transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true">&rarr;</span>
-                                </button>
-                            </div>
-                        </div>
-                        );
-                    })}
-                </div>
-            </Section>
-        </PageContent>
-    );
-};
-
-
-const ServiceDetailPage: FC<{ services: Service[], serviceTitle: string; navigateTo: (page: Page) => void }> = ({ services, serviceTitle, navigateTo }) => {
-    const service = services.find(s => s.title === serviceTitle);
-
-    if (!service) {
-        return (
-            <PageContent title="Error" subtitle="Service not found.">
-                <div className="text-center py-16">
-                    <p>The service you are looking for does not exist.</p>
-                    <button onClick={() => navigateTo('services')} className="mt-4 px-6 py-2 bg-red-600 text-white font-semibold rounded-md hover:bg-red-700">
-                        Back to Services
-                    </button>
-                </div>
-            </PageContent>
-        );
-    }
-
-    return (
-        <div className="animate-page-content-enter">
-            <header 
-                className="relative bg-cover bg-center text-white py-32 px-4 text-center"
-                style={{ backgroundImage: `url(${service.image})` }}
-            >
-                <div className="absolute inset-0 bg-black opacity-60"></div>
-                <div className="relative z-10">
-                    <h1 className="text-5xl font-extrabold">{service.title}</h1>
-                    <p className="text-lg text-gray-300 mt-4 max-w-3xl mx-auto">{service.description}</p>
-                </div>
-            </header>
-            <main>
-                <Section id="service-details" className="bg-white">
-                    <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
-                        <div className="lg:col-span-3">
-                            <h2 className="text-3xl font-bold text-gray-900 mb-4">Service Overview</h2>
-                            <p className="text-gray-600 text-lg leading-relaxed mb-8">{service.longDescription}</p>
-                            <h3 className="text-2xl font-bold text-gray-900 mb-4">Key Features</h3>
-                            <ul className="space-y-3">
-                                {service.features.map(feature => (
-                                    <li key={feature} className="flex items-center">
-                                        <CheckCircle className="h-6 w-6 text-green-500 mr-3 flex-shrink-0" />
-                                        <span className="text-gray-700">{feature}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                        <div className="lg:col-span-2">
-                            <div className="bg-gray-50 p-8 rounded-lg shadow-lg sticky top-24">
-                                <h3 className="text-2xl font-bold text-gray-900 mb-6">Interested in this service?</h3>
-                                <p className="text-gray-600 mb-6">Let's start a conversation about how we can make your next event a success.</p>
-                                <button
-                                    onClick={() => navigateTo('booking')}
-                                    className="w-full bg-red-600 text-white font-bold py-3 px-6 rounded-md hover:bg-red-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-red-500 focus:ring-opacity-50"
-                                >
-                                    Book Now
-                                </button>
-                                <button
-                                    onClick={() => navigateTo('contact')}
-                                    className="w-full mt-4 bg-gray-200 text-gray-800 font-bold py-3 px-6 rounded-md hover:bg-gray-300 transition-all duration-300"
-                                >
-                                    Contact Us
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </Section>
-                <CtaSection navigateTo={navigateTo} />
-            </main>
-        </div>
-    );
-};
-
-const GalleryPage: FC = () => {
-    const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
-    const modalRef = useRef<HTMLDivElement>(null);
-    const triggerRef = useRef<HTMLButtonElement | null>(null);
-
-    const openModal = (image: GalleryImage, element: HTMLButtonElement) => {
-        setSelectedImage(image);
-        triggerRef.current = element;
-    };
-    const closeModal = () => setSelectedImage(null);
-
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') closeModal();
-
-            if (e.key === 'Tab' && modalRef.current) {
-                const focusableElements = modalRef.current.querySelectorAll<HTMLElement>('button');
-                const firstElement = focusableElements[0];
-                const lastElement = focusableElements[focusableElements.length - 1];
-
-                if (e.shiftKey) { 
-                    if (document.activeElement === firstElement) {
-                        lastElement.focus();
-                        e.preventDefault();
-                    }
-                } else { 
-                    if (document.activeElement === lastElement) {
-                        firstElement.focus();
-                        e.preventDefault();
-                    }
-                }
-            }
-        };
-
-        if (selectedImage) {
-            document.addEventListener('keydown', handleKeyDown);
-            modalRef.current?.focus();
-        } else {
-            triggerRef.current?.focus();
-        }
-
-        return () => {
-            document.removeEventListener('keydown', handleKeyDown);
-        };
-    }, [selectedImage]);
-
-    return (
-        <PageContent title="Our Gallery" subtitle="A Glimpse Into the Unforgettable Experiences We've Created">
-            <Section id="gallery-grid">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                    {galleryImages.map((image, index) => (
-                        <div key={index} className="group relative aspect-square overflow-hidden rounded-md">
-                             <button
-                                onClick={(e) => openModal(image, e.currentTarget)}
-                                className="w-full h-full block focus:outline-none focus:ring-4 focus:ring-red-500 focus:ring-offset-2 rounded-md"
-                                aria-label={`View larger image for ${image.caption}`}
-                            >
-                                <img
-                                    src={image.src}
-                                    alt={image.caption}
-                                    className="w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-110"
-                                />
-                                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
-                                    <span className="text-white text-lg font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-300">&#43;</span>
-                                </div>
-                            </button>
-                        </div>
-                    ))}
-                </div>
-            </Section>
-
-            {selectedImage && (
-                <div
-                    role="dialog"
-                    aria-modal="true"
-                    aria-labelledby="modal-caption"
-                    className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 animate-fade-in"
-                    onClick={closeModal}
-                >
-                    <div
-                        ref={modalRef}
-                        tabIndex={-1}
-                        className="relative bg-white rounded-lg shadow-2xl max-w-4xl w-11/12 max-h-[90vh] flex flex-col"
-                        onClick={e => e.stopPropagation()}
-                    >
-                         <div className="p-4 flex-grow flex items-center justify-center">
-                            <img src={selectedImage.src} alt={selectedImage.caption} className="max-w-full max-h-[75vh] object-contain rounded"/>
-                         </div>
-                        <div id="modal-caption" className="bg-black/70 text-white text-center p-3">
-                            <p>{selectedImage.caption}</p>
-                        </div>
-                         <button
-                            onClick={closeModal}
-                            aria-label="Close image viewer"
-                            className="absolute -top-4 -right-4 h-10 w-10 bg-white rounded-full text-gray-700 hover:text-red-600 transition-colors duration-300 flex items-center justify-center shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                        >
-                            <X size={24} />
-                        </button>
-                    </div>
-                </div>
-            )}
-        </PageContent>
-    );
-};
-
-const ProductsPage: FC<{ products: Product[], navigateTo: (page: Page, detailItem?: string | null) => void }> = ({ products, navigateTo }) => {
-    const categories: ProductCategory[] = ['Microphones', 'Speakers', 'Mixers', 'Lighting'];
-    const allCategories: ('All' | ProductCategory)[] = ['All', ...categories];
-    const [activeFilter, setActiveFilter] = useState<'All' | ProductCategory>('All');
-
-    const filteredProducts = products.filter(product => activeFilter === 'All' || product.category === activeFilter);
-
-    return (
-        <PageContent title="Our Products" subtitle="Professional-Grade Equipment for Sale or Rental">
-            <Section id="products-list" className="bg-gray-50">
-                <div className="flex justify-center mb-12">
-                    <div className="bg-white p-2 rounded-full shadow-md">
-                        {allCategories.map(category => (
-                            <button
-                                key={category}
-                                onClick={() => setActiveFilter(category)}
-                                aria-pressed={activeFilter === category}
-                                className={`px-4 sm:px-6 py-2 rounded-full text-sm sm:text-base font-medium transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 ${
-                                    activeFilter === category
-                                        ? 'bg-red-600 text-white shadow'
-                                        : 'bg-transparent text-gray-600 hover:bg-gray-100'
-                                }`}
-                            >
-                                {category}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {filteredProducts.map(product => (
-                        <div 
-                            key={product.id}
-                            className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col group transform hover:-translate-y-2 transition-transform duration-300"
-                        >
-                            <div className="relative h-64 overflow-hidden bg-gray-100">
-                                <img src={product.image} alt={product.name} className="w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-110" />
-                            </div>
-                            <div className="p-6 flex flex-col flex-grow">
-                                <p className="text-sm font-semibold text-red-600">{product.brand}</p>
-                                <h3 className="text-xl font-bold text-gray-900 mb-2">{product.name}</h3>
-                                <p className="text-gray-600 mb-4 flex-grow">{product.description}</p>
-                                <button
-                                    onClick={() => navigateTo('productDetail', product.name)}
-                                    className="mt-auto self-start font-semibold text-red-600 hover:text-red-800 transition-colors duration-300 flex items-center group"
-                                >
-                                    View Details
-                                    <span className="ml-2 transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true">&rarr;</span>
-                                </button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </Section>
-        </PageContent>
-    );
-};
-
-const ProductDetailPage: FC<{ products: Product[], productName: string; navigateTo: (page: Page) => void }> = ({ products, productName, navigateTo }) => {
-    const product = products.find(p => p.name === productName);
-
-    if (!product) {
-        return (
-            <PageContent title="Error" subtitle="Product not found.">
-                <div className="text-center py-16">
-                    <p>The product you are looking for does not exist.</p>
-                    <button onClick={() => navigateTo('products')} className="mt-4 px-6 py-2 bg-red-600 text-white font-semibold rounded-md hover:bg-red-700">
-                        Back to Products
-                    </button>
-                </div>
-            </PageContent>
-        );
-    }
-
-    return (
-        <div className="animate-page-content-enter">
-            <header 
-                className="bg-gray-100 py-12"
-            >
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <button onClick={() => navigateTo('products')} className="flex items-center text-sm font-medium text-gray-600 hover:text-red-600 transition-colors">
-                        <ChevronLeft size={16} className="mr-1" />
-                        Back to Products
-                    </button>
-                </div>
-            </header>
-            <main>
-                <Section id="product-details" className="bg-white pt-12">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
-                        <div className="bg-gray-100 rounded-lg flex items-center justify-center p-8 sticky top-24">
-                            <img src={product.image} alt={product.name} className="max-h-[60vh] object-contain"/>
-                        </div>
-                        <div>
-                            <p className="text-sm font-bold text-red-600 uppercase tracking-wider">{product.brand}</p>
-                            <h1 className="text-4xl lg:text-5xl font-extrabold text-gray-900 mt-2 mb-4">{product.name}</h1>
-                            <p className="text-gray-600 text-lg leading-relaxed mb-8">{product.longDescription}</p>
-
-                            <div className="my-8">
-                                <h3 className="text-2xl font-bold text-gray-900 mb-4 border-b pb-2">Specifications</h3>
-                                <ul className="space-y-3">
-                                    {product.specs.map(spec => (
-                                        <li key={spec.key} className="flex justify-between text-gray-700 border-b border-gray-200 py-2">
-                                            <span className="font-semibold">{spec.key}</span>
-                                            <span>{spec.value}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                            
-                            <div className="mt-10">
-                                <button
-                                    onClick={() => navigateTo('booking')}
-                                    className="w-full bg-red-600 text-white font-bold py-4 px-8 rounded-lg hover:bg-red-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-red-500 focus:ring-opacity-50 text-lg flex items-center justify-center gap-2"
-                                >
-                                    <ShoppingCart size={20} /> Inquire Now
-                                </button>
-                                <p className="text-center text-sm text-gray-500 mt-4">Pricing and availability available upon request.</p>
-                            </div>
-                        </div>
-                    </div>
-                </Section>
-                <CtaSection navigateTo={navigateTo} />
-            </main>
-        </div>
-    );
-};
-
-const BookingPage: FC<{ appState: AppState, services: Service[] }> = ({ appState, services }) => {
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedService, setSelectedService] = useState('');
-  const [subject, setSubject] = useState('');
-
-  useEffect(() => {
-    if (appState.currentProduct) {
-        setSubject(`Inquiry about product: ${appState.currentProduct}`);
-    } else if (appState.currentService) {
-        setSubject(`Inquiry about service: ${appState.currentService}`);
-        // FIX: Pre-select the service in the dropdown when navigating from a service page
-        setSelectedService(appState.currentService);
-    } else {
-        setSubject('');
-    }
-  }, [appState.currentProduct, appState.currentService]);
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setError(null);
-
-    const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData.entries());
-
-    try {
-        const response = await fetch(`${API_BASE_URL}/booking`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-        });
-
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-
-        setIsSubmitted(true);
-    } catch (err) {
-        setError('Failed to submit booking request. Please try again later.');
-    } finally {
-        setIsSubmitting(false);
-    }
-  };
+  const filteredServices = services.filter(service => activeFilter === 'All' || service.category === activeFilter);
 
   return (
-    <PageContent title="Book Our Services" subtitle="Let's Start Planning Your Next Unforgettable Event">
-      <Section id="booking-form" className="bg-gray-50">
-        <div className="max-w-3xl mx-auto">
-            <div className="bg-white p-8 sm:p-12 rounded-2xl shadow-2xl">
-                {isSubmitted ? (
-                    <div className="text-center p-8 animate-fade-in-up">
-                        <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-                        <h2 className="text-2xl font-bold text-gray-900 mb-2">Thank You!</h2>
-                        <p className="text-gray-600 mb-6">Your booking request has been sent successfully. We will get back to you shortly to confirm the details.</p>
-                        <button
-                            onClick={() => {
-                                setIsSubmitted(false);
-                                setSelectedService('');
-                                setSubject('');
-                            }}
-                            className="bg-red-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-700 transition-all duration-300"
-                        >
-                            Submit Another Request
-                        </button>
-                    </div>
-                ) : (
-                    <form onSubmit={handleSubmit}>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                            <input name="fullName" type="text" placeholder="Full Name" aria-label="Full Name" required className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"/>
-                            <input name="email" type="email" placeholder="Email Address" aria-label="Email Address" required className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"/>
-                            <input name="phone" type="tel" placeholder="Phone Number" aria-label="Phone Number" className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"/>
-                            <input name="eventType" type="text" placeholder="Event Type (e.g., Concert, Wedding)" aria-label="Event Type" className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"/>
-                        </div>
-                        <div className="mb-6">
-                            <input name="subject" type="text" placeholder="Subject" aria-label="Subject" value={subject} onChange={e => setSubject(e.target.value)} required className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"/>
-                        </div>
-                        <div className="mb-6">
-                            <select
-                                name="service"
-                                aria-label="Related Service (Optional)"
-                                value={selectedService}
-                                onChange={(e) => setSelectedService(e.target.value)}
-                                className={`w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors ${selectedService ? 'text-gray-900' : 'text-gray-500'}`}
-                            >
-                                <option value="">Select a Related Service (Optional)...</option>
-                                {services.map((service) => (
-                                    <option key={service.title} value={service.title} className="text-gray-900">
-                                        {service.title}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className="mb-6">
-                             <input name="eventDate" type="date" aria-label="Event Date" required className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-500"/>
-                        </div>
-                        <div className="mb-6">
-                            <textarea name="details" placeholder="Tell us more about your event or product inquiry..." aria-label="Event Details" rows={6} required className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"></textarea>
-                        </div>
-                        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-                        <button type="submit" disabled={isSubmitting} className="w-full bg-red-600 text-white font-bold py-4 px-8 rounded-lg hover:bg-red-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-red-500 focus:ring-opacity-50 text-lg disabled:bg-gray-400 disabled:scale-100">
-                            {isSubmitting ? 'Submitting...' : 'Submit Request'}
-                        </button>
-                    </form>
-                )}
+      <PageContent title="Our Services" subtitle="Comprehensive Solutions for Audio, Video, and Event Production">
+          <Section id="services-list" className="bg-gray-50">
+              <div className="flex justify-center mb-12">
+                  <div className="bg-white p-2 rounded-full shadow-md">
+                      {allCategories.map(category => (
+                          <button
+                              key={category}
+                              onClick={() => setActiveFilter(category)}
+                              aria-pressed={activeFilter === category}
+                              className={`px-4 sm:px-6 py-2 rounded-full text-sm sm:text-base font-medium transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 ${
+                                  activeFilter === category
+                                      ? 'bg-red-600 text-white shadow'
+                                      : 'bg-transparent text-gray-600 hover:bg-gray-100'
+                              }`}
+                          >
+                              {category}
+                          </button>
+                      ))}
+                  </div>
+              </div>
+
+              {filteredServices.length === 0 ? (
+                  <div className="text-center py-12">
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-8 max-w-2xl mx-auto">
+                          <Info className="h-12 w-12 text-yellow-600 mx-auto mb-4" />
+                          <h3 className="text-xl font-semibold text-yellow-800 mb-2">No Services Found</h3>
+                          <p className="text-yellow-700">No services match the selected category filter.</p>
+                          <button 
+                              onClick={() => setActiveFilter('All')}
+                              className="mt-4 bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700 transition-colors"
+                          >
+                              Show All Services
+                          </button>
+                      </div>
+                  </div>
+              ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                      {filteredServices.map(service => {
+                          const Icon = service.icon;
+                          if (!Icon) return null;
+                          return (
+                          <div 
+                              key={service.title}
+                              className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col group transform hover:-translate-y-2 transition-transform duration-300"
+                          >
+                              <div className="relative h-56 overflow-hidden">
+                                  <img 
+                                      src={service.image} 
+                                      alt={service.title} 
+                                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                      onError={(e) => {
+                                          const target = e.target as HTMLImageElement;
+                                          target.src = '/images/placeholder-service.jpg';
+                                      }}
+                                  />
+                                  <div className="absolute top-3 left-3">
+                                      <span className="bg-red-600 text-white text-xs px-2 py-1 rounded">
+                                          {service.category}
+                                      </span>
+                                  </div>
+                              </div>
+                              <div className="p-6 flex flex-col flex-grow">
+                                  <div className="flex items-center mb-3 text-red-600">
+                                      <Icon className="h-6 w-6 mr-3" />
+                                      <h3 className="text-xl font-bold text-gray-900">{service.title}</h3>
+                                  </div>
+                                  <p className="text-gray-600 mb-4 flex-grow">{service.description}</p>
+                                  <div className="flex flex-wrap gap-1 mb-4">
+                                      {service.features.slice(0, 3).map((feature, index) => (
+                                          <span key={index} className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">
+                                              {feature}
+                                          </span>
+                                      ))}
+                                  </div>
+                                  <button
+                                      onClick={() => navigateTo('serviceDetail', service.title)}
+                                      className="mt-auto self-start font-semibold text-red-600 hover:text-red-800 transition-colors duration-300 flex items-center group"
+                                  >
+                                      Learn More
+                                      <span className="ml-2 transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true">&rarr;</span>
+                                  </button>
+                              </div>
+                          </div>
+                          );
+                      })}
+                  </div>
+              )}
+          </Section>
+      </PageContent>
+  );
+};
+
+// Individual Service Page Components
+const MusicProductionPage: FC<{ navigateTo: (page: Page) => void }> = ({ navigateTo }) => (
+  <PageContent title="Music Production" subtitle="Professional studio recording, mixing, and mastering services">
+    <Section id="music-production-detail" className="bg-white">
+      <div className="max-w-6xl mx-auto">
+        {/* Hero Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
+          <div>
+            <img 
+              src="/images/services/music-production-hero.jpg" 
+              alt="Professional Music Production Studio"
+              className="w-full rounded-2xl shadow-2xl"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = '/images/services/Music.jpg';
+              }}
+            />
+          </div>
+          <div className="space-y-6">
+            <h2 className="text-4xl font-bold text-gray-900">Professional Music Production</h2>
+            <p className="text-lg text-gray-600 leading-relaxed">
+              Transform your musical vision into professional-quality recordings with our state-of-the-art 
+              production facilities. From initial concept to final master, we provide comprehensive music 
+              production services for artists, bands, and producers.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <span className="bg-red-100 text-red-800 px-4 py-2 rounded-full text-sm font-medium">Multi-track Recording</span>
+              <span className="bg-red-100 text-red-800 px-4 py-2 rounded-full text-sm font-medium">Expert Mixing</span>
+              <span className="bg-red-100 text-red-800 px-4 py-2 rounded-full text-sm font-medium">Professional Mastering</span>
+              <span className="bg-red-100 text-red-800 px-4 py-2 rounded-full text-sm font-medium">Vocal Production</span>
             </div>
+            <div className="flex gap-4 pt-4">
+              <button 
+                onClick={() => navigateTo('booking')}
+                className="bg-red-600 text-white px-8 py-4 rounded-lg hover:bg-red-700 transition-colors font-semibold text-lg"
+              >
+                Book Studio Session
+              </button>
+              <button 
+                onClick={() => navigateTo('contact')}
+                className="border-2 border-red-600 text-red-600 px-8 py-4 rounded-lg hover:bg-red-50 transition-colors font-semibold text-lg"
+              >
+                Get Consultation
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Features Grid */}
+        <div className="bg-gray-50 rounded-2xl p-8 mb-16">
+          <h3 className="text-3xl font-bold text-gray-900 mb-8 text-center">What We Offer</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                title: "Recording Sessions",
+                description: "Professional recording in acoustically treated studios with top-tier equipment",
+                features: ["Multi-track recording", "Live band sessions", "Vocal booths", "Instrument tracking"]
+              },
+              {
+                title: "Mixing & Mastering",
+                description: "Expert audio engineering to perfect your sound across all platforms",
+                features: ["EQ & Compression", "Spatial effects", "Loudness optimization", "Format conversion"]
+              },
+              {
+                title: "Vocal Production",
+                description: "Professional vocal recording, tuning, and production services",
+                features: ["Pitch correction", "Harmony creation", "Vocal comping", "Effects processing"]
+              },
+              {
+                title: "Beat Production",
+                description: "Custom beat creation and arrangement for your projects",
+                features: ["Original compositions", "Sample clearance", "Drum programming", "Arrangement"]
+              },
+              {
+                title: "Session Musicians",
+                description: "Access to professional session players for your recordings",
+                features: ["Guitarists", "Drummers", "Keyboardists", "String sections"]
+              },
+              {
+                title: "Final Delivery",
+                description: "Complete delivery in all required formats for distribution",
+                features: ["WAV & MP3 formats", "Streaming optimized", "CD mastering", "Metadata inclusion"]
+              }
+            ].map((service, index) => (
+              <div key={index} className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+                <h4 className="text-xl font-bold text-gray-900 mb-3">{service.title}</h4>
+                <p className="text-gray-600 mb-4">{service.description}</p>
+                <ul className="space-y-2">
+                  {service.features.map((feature, idx) => (
+                    <li key={idx} className="flex items-center text-sm text-gray-700">
+                      <CheckCircle className="h-4 w-4 text-red-600 mr-2 flex-shrink-0" />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Equipment Section */}
+        <div className="mb-16">
+          <h3 className="text-3xl font-bold text-gray-900 mb-8 text-center">Our Studio Equipment</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="bg-white p-6 rounded-xl shadow-lg">
+              <h4 className="text-xl font-bold text-gray-900 mb-4">Recording Gear</h4>
+              <ul className="space-y-3 text-gray-600">
+                <li className="flex justify-between">
+                  <span>Neumann U87 Microphones</span>
+                  <span className="text-red-600 font-semibold">4 units</span>
+                </li>
+                <li className="flex justify-between">
+                  <span>Universal Audio Apollo Interfaces</span>
+                  <span className="text-red-600 font-semibold">2 systems</span>
+                </li>
+                <li className="flex justify-between">
+                  <span>Pro Tools | HD Systems</span>
+                  <span className="text-red-600 font-semibold">3 stations</span>
+                </li>
+                <li className="flex justify-between">
+                  <span>Yamaha NS10 Monitors</span>
+                  <span className="text-red-600 font-semibold">2 pairs</span>
+                </li>
+              </ul>
+            </div>
+            <div className="bg-white p-6 rounded-xl shadow-lg">
+              <h4 className="text-xl font-bold text-gray-900 mb-4">Software & Plugins</h4>
+              <ul className="space-y-3 text-gray-600">
+                <li className="flex justify-between">
+                  <span>Waves Platinum Bundle</span>
+                  <span className="text-red-600 font-semibold">Full suite</span>
+                </li>
+                <li className="flex justify-between">
+                  <span>Native Instruments Komplete</span>
+                  <span className="text-red-600 font-semibold">Latest version</span>
+                </li>
+                <li className="flex justify-between">
+                  <span>Antares Auto-Tune</span>
+                  <span className="text-red-600 font-semibold">Professional</span>
+                </li>
+                <li className="flex justify-between">
+                  <span>iZotope Ozone</span>
+                  <span className="text-red-600 font-semibold">Advanced</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Pricing Section */}
+        <div className="bg-red-50 rounded-2xl p-8">
+          <h3 className="text-3xl font-bold text-gray-900 mb-8 text-center">Pricing Packages</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                name: "Basic Session",
+                price: "₦50,000",
+                duration: "4 hours",
+                features: ["2-track recording", "Basic mixing", "WAV file delivery", "Engineer included"]
+              },
+              {
+                name: "Professional Package",
+                price: "₦150,000",
+                duration: "Full day",
+                features: ["Unlimited tracks", "Advanced mixing", "Mastering included", "Vocal tuning", "Multiple formats"]
+              },
+              {
+                name: "Album Production",
+                price: "₦500,000",
+                duration: "Custom",
+                features: ["Complete album", "Professional mastering", "Artwork consultation", "Distribution prep", "Unlimited revisions"]
+              }
+            ].map((packageItem, index) => (
+              <div key={index} className="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div className="bg-red-600 text-white p-6 text-center">
+                  <h4 className="text-2xl font-bold">{packageItem.name}</h4>
+                  <div className="text-3xl font-bold mt-2">{packageItem.price}</div>
+                  <div className="text-red-100">{packageItem.duration}</div>
+                </div>
+                <div className="p-6">
+                  <ul className="space-y-3">
+                    {packageItem.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-center text-gray-700">
+                        <CheckCircle className="h-5 w-5 text-red-600 mr-3 flex-shrink-0" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <button 
+                    onClick={() => navigateTo('booking')}
+                    className="w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition-colors font-semibold mt-6"
+                  >
+                    Book Now
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </Section>
+  </PageContent>
+);
+
+const ConcertProductionsPage: FC<{ navigateTo: (page: Page) => void }> = ({ navigateTo }) => (
+  <PageContent title="Concert Productions" subtitle="Complete concert and live event production services">
+    <Section id="concert-production-detail" className="bg-white">
+      <div className="max-w-6xl mx-auto">
+        {/* Hero Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
+          <div>
+            <img 
+              src="/images/services/concert-production-hero.jpg" 
+              alt="Large Concert Production"
+              className="w-full rounded-2xl shadow-2xl"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = '/images/services/concert.jpeg';
+              }}
+            />
+          </div>
+          <div className="space-y-6">
+            <h2 className="text-4xl font-bold text-gray-900">Complete Concert Production</h2>
+            <p className="text-lg text-gray-600 leading-relaxed">
+              From intimate club shows to massive festival stages, we deliver unforgettable concert experiences. 
+              Our comprehensive production services cover every aspect of live event production, ensuring 
+              flawless execution and maximum audience impact.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <span className="bg-red-100 text-red-800 px-4 py-2 rounded-full text-sm font-medium">Stage Design</span>
+              <span className="bg-red-100 text-red-800 px-4 py-2 rounded-full text-sm font-medium">Lighting Systems</span>
+              <span className="bg-red-100 text-red-800 px-4 py-2 rounded-full text-sm font-medium">Audio Engineering</span>
+              <span className="bg-red-100 text-red-800 px-4 py-2 rounded-full text-sm font-medium">Video Production</span>
+            </div>
+            <div className="flex gap-4 pt-4">
+              <button 
+                onClick={() => navigateTo('booking')}
+                className="bg-red-600 text-white px-8 py-4 rounded-lg hover:bg-red-700 transition-colors font-semibold text-lg"
+              >
+                Plan Your Concert
+              </button>
+              <button 
+                onClick={() => navigateTo('contact')}
+                className="border-2 border-red-600 text-red-600 px-8 py-4 rounded-lg hover:bg-red-50 transition-colors font-semibold text-lg"
+              >
+                Get Quote
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Services Grid - FIXED ICONS */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+          {[
+            {
+              icon: MonitorSpeaker,
+              title: "Audio Systems",
+              description: "Professional PA systems and mixing for crystal-clear sound",
+              details: ["Line array systems", "Digital mixing consoles", "Monitor systems", "Wireless microphones"]
+            },
+            {
+              icon: Lightbulb,
+              title: "Lighting Design",
+              description: "Creative lighting solutions to enhance your performance",
+              details: ["Moving heads", "LED fixtures", "Atmospheric effects", "Control systems"]
+            },
+            {
+              icon: Video,
+              title: "Video Production",
+              description: "Large-scale video displays and IMAG systems",
+              details: ["LED video walls", "Projection mapping", "Camera systems", "Content creation"]
+            },
+            {
+              icon: Layers,
+              title: "Stage & Rigging",
+              description: "Professional staging and rigging solutions",
+              details: ["Modular staging", "Truss systems", "Rigging engineering", "Safety systems"]
+            },
+            {
+              icon: Zap,
+              title: "Power Distribution",
+              description: "Reliable power solutions for all equipment",
+              details: ["Generator systems", "Power distribution", "Cable management", "Backup systems"]
+            },
+            {
+              icon: Users,
+              title: "Crew & Management",
+              description: "Professional crew and event management",
+              details: ["Audio engineers", "Lighting operators", "Stage managers", "Production coordinators"]
+            }
+          ].map((service, index) => (
+            <div key={index} className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow border-t-4 border-red-500">
+              <div className="flex items-center justify-center h-12 w-12 bg-red-100 text-red-600 rounded-lg mb-4">
+                <service.icon className="h-6 w-6" />
+              </div>
+              <h4 className="text-xl font-bold text-gray-900 mb-3">{service.title}</h4>
+              <p className="text-gray-600 mb-4">{service.description}</p>
+              <ul className="space-y-2">
+                {service.details.map((detail, idx) => (
+                  <li key={idx} className="text-sm text-gray-700 flex items-center">
+                    <CheckCircle className="h-4 w-4 text-red-600 mr-2 flex-shrink-0" />
+                    {detail}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        {/* Event Scale Options */}
+        <div className="bg-gray-50 rounded-2xl p-8 mb-16">
+          <h3 className="text-3xl font-bold text-gray-900 mb-8 text-center">Event Scale Solutions</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                scale: "Small Events",
+                capacity: "50-500 people",
+                description: "Perfect for club shows, private events, and corporate functions",
+                equipment: ["Compact PA systems", "Basic lighting", "Small stage setup"],
+                price: "From ₦200,000"
+              },
+              {
+                scale: "Medium Events",
+                capacity: "500-5,000 people",
+                description: "Ideal for theater shows, conferences, and medium-sized festivals",
+                equipment: ["Line array systems", "Advanced lighting", "Video projection", "Full staging"],
+                price: "From ₦800,000"
+              },
+              {
+                scale: "Large Events",
+                capacity: "5,000+ people",
+                description: "Designed for major concerts, festivals, and large-scale productions",
+                equipment: ["Multiple PA systems", "Extensive lighting", "LED video walls", "Complex rigging"],
+                price: "From ₦2,000,000"
+              }
+            ].map((event, index) => (
+              <div key={index} className="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div className="bg-red-600 text-white p-6 text-center">
+                  <h4 className="text-2xl font-bold">{event.scale}</h4>
+                  <div className="text-red-100 mt-2">{event.capacity}</div>
+                </div>
+                <div className="p-6">
+                  <p className="text-gray-600 mb-4">{event.description}</p>
+                  <h5 className="font-semibold text-gray-900 mb-3">Includes:</h5>
+                  <ul className="space-y-2 mb-6">
+                    {event.equipment.map((item, idx) => (
+                      <li key={idx} className="text-sm text-gray-700 flex items-center">
+                        <CheckCircle className="h-4 w-4 text-red-600 mr-2 flex-shrink-0" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="text-2xl font-bold text-red-600 text-center">{event.price}</div>
+                  <button 
+                    onClick={() => navigateTo('booking')}
+                    className="w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition-colors font-semibold mt-4"
+                  >
+                    Get Quote
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Process Timeline */}
+        <div className="mb-16">
+          <h3 className="text-3xl font-bold text-gray-900 mb-12 text-center">Our Production Process</h3>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            {[
+              {
+                step: "01",
+                title: "Consultation",
+                description: "We discuss your vision, requirements, and budget"
+              },
+              {
+                step: "02",
+                title: "Planning",
+                description: "Detailed technical planning and equipment selection"
+              },
+              {
+                step: "03",
+                title: "Setup",
+                description: "Professional installation and testing of all systems"
+              },
+              {
+                step: "04",
+                title: "Execution",
+                description: "Flawless operation during your event with expert crew"
+              }
+            ].map((step, index) => (
+              <div key={index} className="text-center">
+                <div className="w-20 h-20 bg-red-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
+                  {step.step}
+                </div>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">{step.title}</h4>
+                <p className="text-gray-600 text-sm">{step.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </Section>
+  </PageContent>
+);
+
+// Enhanced Sound Reinforcement Page
+const SoundReinforcementPage: FC<{ navigateTo: (page: Page) => void }> = ({ navigateTo }) => (
+  <PageContent title="Sound Reinforcement" subtitle="Professional audio systems for events of any size">
+    <Section id="sound-reinforcement-detail" className="bg-white">
+      <div className="max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
+          <div>
+            <img 
+              src="/images/services/sound-reinforcement-hero.jpg" 
+              alt="Professional Sound System Setup"
+              className="w-full rounded-2xl shadow-2xl"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = '/images/services/Sound.jpg';
+              }}
+            />
+          </div>
+          <div className="space-y-6">
+            <h2 className="text-4xl font-bold text-gray-900">Professional Sound Reinforcement</h2>
+            <p className="text-lg text-gray-600 leading-relaxed">
+              Ensure every word and note is heard with perfect clarity through our professional sound 
+              reinforcement services. We design and implement audio solutions tailored to your specific 
+              venue and event requirements.
+            </p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-center">
+                <CheckCircle className="h-5 w-5 text-red-600 mr-3" />
+                <span className="text-gray-700">Crystal-clear audio quality</span>
+              </div>
+              <div className="flex items-center">
+                <CheckCircle className="h-5 w-5 text-red-600 mr-3" />
+                <span className="text-gray-700">Advanced system tuning</span>
+              </div>
+              <div className="flex items-center">
+                <CheckCircle className="h-5 w-5 text-red-600 mr-3" />
+                <span className="text-gray-700">Wireless microphone systems</span>
+              </div>
+              <div className="flex items-center">
+                <CheckCircle className="h-5 w-5 text-red-600 mr-3" />
+                <span className="text-gray-700">Monitor systems</span>
+              </div>
+            </div>
+            <div className="flex gap-4 pt-4">
+              <button 
+                onClick={() => navigateTo('booking')}
+                className="bg-red-600 text-white px-8 py-4 rounded-lg hover:bg-red-700 transition-colors font-semibold text-lg"
+              >
+                Inquire About Sound Services
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Equipment Brands */}
+        <div className="bg-gray-50 rounded-2xl p-8 mb-16">
+          <h3 className="text-3xl font-bold text-gray-900 mb-8 text-center">Premium Equipment Brands</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            {[
+              { name: "Martin Audio", specialty: "Line Array Systems" },
+              { name: "Shure", specialty: "Microphones" },
+              { name: "Yamaha", specialty: "Mixing Consoles" },
+              { name: "d&b audiotechnik", specialty: "PA Systems" }
+            ].map((brand, index) => (
+              <div key={index} className="bg-white p-6 rounded-xl shadow-lg">
+                <h4 className="text-lg font-bold text-gray-900 mb-2">{brand.name}</h4>
+                <p className="text-red-600 text-sm">{brand.specialty}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </Section>
+  </PageContent>
+);
+
+const StudioRecordingPage: FC<{ navigateTo: (page: Page) => void }> = ({ navigateTo }) => (
+  <PageContent title="Studio Recording" subtitle="Professional recording sessions in our state-of-the-art studio">
+    <Section id="studio-recording-detail" className="bg-white">
+      <div className="max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
+          <div>
+            <img 
+              src="/images/services/studio-recording-hero.jpg" 
+              alt="Professional Recording Studio"
+              className="w-full rounded-2xl shadow-2xl"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = '/images/services/liverord.jpeg';
+              }}
+            />
+          </div>
+          <div className="space-y-6">
+            <h2 className="text-4xl font-bold text-gray-900">Studio Recording Services</h2>
+            <p className="text-lg text-gray-600 leading-relaxed">
+              Capture your sound with the highest fidelity in our professionally designed recording studio. 
+              Featuring acoustically treated rooms, high-end microphones, and both analog and digital 
+              recording equipment.
+            </p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-center">
+                <CheckCircle className="h-5 w-5 text-red-600 mr-3" />
+                <span className="text-gray-700">Acoustically treated rooms</span>
+              </div>
+              <div className="flex items-center">
+                <CheckCircle className="h-5 w-5 text-red-600 mr-3" />
+                <span className="text-gray-700">High-end microphones</span>
+              </div>
+              <div className="flex items-center">
+                <CheckCircle className="h-5 w-5 text-red-600 mr-3" />
+                <span className="text-gray-700">Professional engineers</span>
+              </div>
+              <div className="flex items-center">
+                <CheckCircle className="h-5 w-5 text-red-600 mr-3" />
+                <span className="text-gray-700">Analog & digital equipment</span>
+              </div>
+            </div>
+            <div className="flex gap-4 pt-4">
+              <button 
+                onClick={() => navigateTo('booking')}
+                className="bg-red-600 text-white px-8 py-4 rounded-lg hover:bg-red-700 transition-colors font-semibold text-lg"
+              >
+                Book Studio Time
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Studio Features */}
+        <div className="bg-gray-50 rounded-2xl p-8">
+          <h3 className="text-3xl font-bold text-gray-900 mb-8 text-center">Studio Features & Amenities</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                feature: "Control Room",
+                description: "Professionally designed control room with premium monitoring",
+                details: ["SSL console", "Genelec monitors", "Acoustic treatment"]
+              },
+              {
+                feature: "Live Room",
+                description: "Spacious live room for full band recordings",
+                details: ["200 sqm space", "Natural reverb", "Isolation booths"]
+              },
+              {
+                feature: "Vocal Booth",
+                description: "Dedicated vocal recording booth",
+                details: ["Soundproof design", "Neumann microphones", "Comfortable environment"]
+              },
+              {
+                feature: "Equipment",
+                description: "Top-tier recording equipment",
+                details: ["Analog outboard gear", "Premium microphones", "Latest interfaces"]
+              },
+              {
+                feature: "Software",
+                description: "Professional DAW and plugins",
+                details: ["Pro Tools HD", "Waves plugins", "Virtual instruments"]
+              },
+              {
+                feature: "Amenities",
+                description: "Comfortable artist facilities",
+                details: ["Lounge area", "Kitchen facilities", "Secure parking"]
+              }
+            ].map((item, index) => (
+              <div key={index} className="bg-white p-6 rounded-xl shadow-lg">
+                <h4 className="text-xl font-bold text-gray-900 mb-3">{item.feature}</h4>
+                <p className="text-gray-600 mb-4">{item.description}</p>
+                <ul className="space-y-2">
+                  {item.details.map((detail, idx) => (
+                    <li key={idx} className="text-sm text-gray-700 flex items-center">
+                      <CheckCircle className="h-4 w-4 text-red-600 mr-2 flex-shrink-0" />
+                      {detail}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </Section>
+  </PageContent>
+);
+
+// Enhanced Equipment Rental Page
+const EquipmentRentalPage: FC<{ navigateTo: (page: Page) => void }> = ({ navigateTo }) => (
+  <PageContent title="Equipment Rental" subtitle="High-quality audio, lighting, and production equipment">
+    <Section id="equipment-rental-detail" className="bg-white">
+      <div className="max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
+          <div>
+            <img 
+              src="/images/services/equipment-rental-hero.jpg" 
+              alt="Professional Audio Equipment"
+              className="w-full rounded-2xl shadow-2xl"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = '/images/services/equipment.jpg';
+              }}
+            />
+          </div>
+          <div className="space-y-6">
+            <h2 className="text-4xl font-bold text-gray-900">Equipment Rental Services</h2>
+            <p className="text-lg text-gray-600 leading-relaxed">
+              Need professional production equipment? We offer a comprehensive range of rental options 
+              including complete PA systems, microphones, mixing consoles, lighting equipment, and staging. 
+              All equipment is regularly maintained and tested.
+            </p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-center">
+                <CheckCircle className="h-5 w-5 text-red-600 mr-3" />
+                <span className="text-gray-700">Regularly maintained equipment</span>
+              </div>
+              <div className="flex items-center">
+                <CheckCircle className="h-5 w-5 text-red-600 mr-3" />
+                <span className="text-gray-700">Technical support available</span>
+              </div>
+              <div className="flex items-center">
+                <CheckCircle className="h-5 w-5 text-red-600 mr-3" />
+                <span className="text-gray-700">Delivery and setup</span>
+              </div>
+              <div className="flex items-center">
+                <CheckCircle className="h-5 w-5 text-red-600 mr-3" />
+                <span className="text-gray-700">Flexible rental periods</span>
+              </div>
+            </div>
+            <div className="flex gap-4 pt-4">
+              <button 
+                onClick={() => navigateTo('products')}
+                className="bg-red-600 text-white px-8 py-4 rounded-lg hover:bg-red-700 transition-colors font-semibold text-lg"
+              >
+                View Available Equipment
+              </button>
+              <button 
+                onClick={() => navigateTo('contact')}
+                className="border-2 border-red-600 text-red-600 px-8 py-4 rounded-lg hover:bg-red-50 transition-colors font-semibold text-lg"
+              >
+                Request Quote
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Equipment Categories - FIXED ICONS */}
+        <div className="bg-gray-50 rounded-2xl p-8">
+          <h3 className="text-3xl font-bold text-gray-900 mb-8 text-center">Equipment Categories</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              {
+                category: "Audio Systems",
+                items: ["PA Systems", "Mixing Consoles", "Microphones", "Monitors"],
+                icon: Speaker
+              },
+              {
+                category: "Lighting",
+                items: ["Moving Heads", "LED Fixtures", "Control Systems", "Effects"],
+                icon: Lightbulb
+              },
+              {
+                category: "Staging",
+                items: ["Modular Stages", "Trussing", "Backdrops", "Rigging"],
+                icon: Theater
+              },
+              {
+                category: "Accessories",
+                items: ["Cables", "Stands", "Cases", "Power Distribution"],
+                icon: Cable
+              }
+            ].map((category, index) => (
+              <div key={index} className="bg-white p-6 rounded-xl shadow-lg text-center">
+                <div className="flex items-center justify-center h-12 w-12 bg-red-100 text-red-600 rounded-lg mx-auto mb-4">
+                  <category.icon className="h-6 w-6" />
+                </div>
+                <h4 className="text-lg font-bold text-gray-900 mb-4">{category.category}</h4>
+                <ul className="space-y-2">
+                  {category.items.map((item, idx) => (
+                    <li key={idx} className="text-sm text-gray-700">{item}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </Section>
+  </PageContent>
+);
+
+// Enhanced Event Planning Page
+const EventPlanningPage: FC<{ navigateTo: (page: Page) => void }> = ({ navigateTo }) => (
+  <PageContent title="Event Planning" subtitle="Complete event planning and coordination services">
+    <Section id="event-planning-detail" className="bg-white">
+      <div className="max-w-6xl mx-auto">
+        {/* Hero Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
+          <div>
+            <img 
+              src="/images/services/event-planning-hero.jpg" 
+              alt="Professional Event Planning"
+              className="w-full rounded-2xl shadow-2xl"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = '/images/services/event-planning.jpg';
+              }}
+            />
+          </div>
+          <div className="space-y-6">
+            <h2 className="text-4xl font-bold text-gray-900">Complete Event Planning</h2>
+            <p className="text-lg text-gray-600 leading-relaxed">
+              From concept to execution, our event planning service ensures every detail is perfect. 
+              We coordinate all aspects of your event including venue selection, vendor management, 
+              timeline coordination, and technical requirements.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <span className="bg-red-100 text-red-800 px-4 py-2 rounded-full text-sm font-medium">Venue Selection</span>
+              <span className="bg-red-100 text-red-800 px-4 py-2 rounded-full text-sm font-medium">Vendor Coordination</span>
+              <span className="bg-red-100 text-red-800 px-4 py-2 rounded-full text-sm font-medium">Timeline Management</span>
+              <span className="bg-red-100 text-red-800 px-4 py-2 rounded-full text-sm font-medium">Budget Planning</span>
+            </div>
+            <div className="flex gap-4 pt-4">
+              <button 
+                onClick={() => navigateTo('booking')}
+                className="bg-red-600 text-white px-8 py-4 rounded-lg hover:bg-red-700 transition-colors font-semibold text-lg"
+              >
+                Plan Your Event
+              </button>
+              <button 
+                onClick={() => navigateTo('contact')}
+                className="border-2 border-red-600 text-red-600 px-8 py-4 rounded-lg hover:bg-red-50 transition-colors font-semibold text-lg"
+              >
+                Get Consultation
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Services Grid - FIXED ICONS */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+          {[
+            {
+              icon: Calendar,
+              title: "Event Strategy",
+              description: "Comprehensive planning and strategy development",
+              details: ["Concept development", "Budget planning", "Timeline creation", "Goal setting"]
+            },
+            {
+              icon: MapPin,
+              title: "Venue Management",
+              description: "Perfect venue selection and coordination",
+              details: ["Venue sourcing", "Site inspections", "Contract negotiation", "Logistics planning"]
+            },
+            {
+              icon: Users,
+              title: "Vendor Coordination",
+              description: "Professional vendor management and coordination",
+              details: ["Vendor selection", "Contract management", "Quality control", "Payment processing"]
+            },
+            {
+              icon: ClipboardList,
+              title: "Program Management",
+              description: "Detailed program and timeline management",
+              details: ["Agenda planning", "Speaker coordination", "Entertainment booking", "Run sheet creation"]
+            },
+            {
+              icon: Palette,
+              title: "Creative Design",
+              description: "Creative elements and theme development",
+              details: ["Theme development", "Decor planning", "Brand integration", "Visual design"]
+            },
+            {
+              icon: BarChart3,
+              title: "Budget Management",
+              description: "Comprehensive budget planning and control",
+              details: ["Budget creation", "Cost tracking", "Expense management", "Financial reporting"]
+            }
+          ].map((service, index) => (
+            <div key={index} className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow border-t-4 border-red-500">
+              <div className="flex items-center justify-center h-12 w-12 bg-red-100 text-red-600 rounded-lg mb-4">
+                <service.icon className="h-6 w-6" />
+              </div>
+              <h4 className="text-xl font-bold text-gray-900 mb-3">{service.title}</h4>
+              <p className="text-gray-600 mb-4">{service.description}</p>
+              <ul className="space-y-2">
+                {service.details.map((detail, idx) => (
+                  <li key={idx} className="text-sm text-gray-700 flex items-center">
+                    <CheckCircle className="h-4 w-4 text-red-600 mr-2 flex-shrink-0" />
+                    {detail}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        {/* Event Types */}
+        <div className="bg-gray-50 rounded-2xl p-8 mb-16">
+          <h3 className="text-3xl font-bold text-gray-900 mb-8 text-center">Event Types We Specialize In</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              {
+                type: "Corporate Events",
+                examples: ["Conferences", "Product launches", "Team building", "Award ceremonies"]
+              },
+              {
+                type: "Social Events",
+                examples: ["Weddings", "Birthdays", "Anniversaries", "Family gatherings"]
+              },
+              {
+                type: "Music Events",
+                examples: ["Concerts", "Festivals", "Album launches", "Music videos"]
+              },
+              {
+                type: "Special Events",
+                examples: ["Charity galas", "Fundraisers", "Community events", "Cultural festivals"]
+              }
+            ].map((eventType, index) => (
+              <div key={index} className="bg-white p-6 rounded-xl shadow-lg">
+                <h4 className="text-lg font-bold text-gray-900 mb-4 text-center">{eventType.type}</h4>
+                <ul className="space-y-2">
+                  {eventType.examples.map((example, idx) => (
+                    <li key={idx} className="text-sm text-gray-700 text-center">{example}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Planning Process */}
+        <div className="mb-16">
+          <h3 className="text-3xl font-bold text-gray-900 mb-12 text-center">Our Event Planning Process</h3>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            {[
+              {
+                step: "01",
+                title: "Discovery",
+                description: "We understand your vision, goals, and requirements"
+              },
+              {
+                step: "02",
+                title: "Planning",
+                description: "Detailed strategy development and vendor coordination"
+              },
+              {
+                step: "03",
+                title: "Execution",
+                description: "Flawless on-site management and coordination"
+              },
+              {
+                step: "04",
+                title: "Evaluation",
+                description: "Post-event analysis and follow-up for future improvements"
+              }
+            ].map((step, index) => (
+              <div key={index} className="text-center">
+                <div className="w-20 h-20 bg-red-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
+                  {step.step}
+                </div>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">{step.title}</h4>
+                <p className="text-gray-600 text-sm">{step.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Pricing Packages */}
+        <div className="bg-red-50 rounded-2xl p-8">
+          <h3 className="text-3xl font-bold text-gray-900 mb-8 text-center">Planning Packages</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                name: "Basic Planning",
+                price: "₦150,000",
+                description: "Perfect for small to medium events",
+                features: ["Initial consultation", "Vendor recommendations", "Basic timeline", "Email support"]
+              },
+              {
+                name: "Full Service",
+                price: "₦500,000",
+                description: "Comprehensive planning for important events",
+                features: ["Full planning services", "Vendor management", "Day-of coordination", "Budget management", "Unlimited revisions"]
+              },
+              {
+                name: "Premium Package",
+                price: "₦1,000,000",
+                description: "White-glove service for premium events",
+                features: ["Dedicated planner", "Full creative design", "Vendor negotiations", "On-site management", "Post-event analysis"]
+              }
+            ].map((packageItem, index) => (
+              <div key={index} className="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div className="bg-red-600 text-white p-6 text-center">
+                  <h4 className="text-2xl font-bold">{packageItem.name}</h4>
+                  <div className="text-3xl font-bold mt-2">{packageItem.price}</div>
+                  <div className="text-red-100">{packageItem.description}</div>
+                </div>
+                <div className="p-6">
+                  <ul className="space-y-3">
+                    {packageItem.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-center text-gray-700">
+                        <CheckCircle className="h-5 w-5 text-red-600 mr-3 flex-shrink-0" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <button 
+                    onClick={() => navigateTo('booking')}
+                    className="w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition-colors font-semibold mt-6"
+                  >
+                    Get Started
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </Section>
+  </PageContent>
+);
+
+// Fixed ServiceDetailPage component
+const ServiceDetailPage: FC<{ 
+  serviceName: string | null; 
+  navigateTo: (page: Page, service?: string | null) => void 
+}> = ({ serviceName, navigateTo }) => {
+  
+  // Route to the appropriate service detail page based on serviceName
+  switch (serviceName) {
+    case 'Music Production':
+      return <MusicProductionPage navigateTo={navigateTo} />;
+    case 'Concert Productions':
+      return <ConcertProductionsPage navigateTo={navigateTo} />;
+    case 'Sound Reinforcement':
+      return <SoundReinforcementPage navigateTo={navigateTo} />;
+    case 'Studio Recording':
+      return <StudioRecordingPage navigateTo={navigateTo} />;
+    case 'Event Planning':
+      return <EventPlanningPage navigateTo={navigateTo} />;
+    case 'Equipment Rental':
+      return <EquipmentRentalPage navigateTo={navigateTo} />;
+    default:
+      // Fallback to services list if service not found
+      return (
+        <PageContent title="Service Not Found" subtitle="The requested service could not be found">
+          <Section id="service-not-found" className="bg-white text-center py-12">
+            <div className="max-w-2xl mx-auto">
+              <Info className="h-16 w-16 text-yellow-500 mx-auto mb-4" />
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Service Not Available</h2>
+              <p className="text-gray-600 mb-6">
+                The service "{serviceName}" is not currently available. Please browse our available services below.
+              </p>
+              <button 
+                onClick={() => navigateTo('services')}
+                className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors font-semibold"
+              >
+                View All Services
+              </button>
+            </div>
+          </Section>
+        </PageContent>
+      );
+  }
+};
+
+// Products Page
+const ProductsPage: FC<{ products: Product[], navigateTo: (page: Page, product?: string | null) => void }> = ({ products, navigateTo }) => {
+  return (
+    <PageContent title="Our Products" subtitle="High-quality audio equipment and professional gear">
+      <Section id="products">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {products.map((product) => (
+            <div 
+              key={product.id}
+              className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 cursor-pointer"
+              onClick={() => navigateTo('productDetail', product.name)}
+            >
+              <div className="h-64 bg-gray-200">
+                <img 
+                  src={product.image} 
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/images/placeholder-product.jpg';
+                  }}
+                />
+              </div>
+              <div className="p-6">
+                <div className="flex justify-between items-start mb-3">
+                  <h3 className="text-xl font-bold text-gray-900">{product.name}</h3>
+                  <span className="bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded">
+                    {product.category}
+                  </span>
+                </div>
+                <p className="text-gray-600 mb-2">{product.brand}</p>
+                <p className="text-gray-700 mb-4">{product.description}</p>
+                <button className="w-full bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700 transition-colors">
+                  View Details
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       </Section>
     </PageContent>
   );
 };
 
-const ContactPage: FC = () => {
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+// Product Detail Page
+const ProductDetailPage: FC<{ products: Product[], productName: string, navigateTo: (page: Page, product?: string | null) => void }> = ({ products, productName, navigateTo }) => {
+  const product = products.find(p => p.name === productName);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setError(null);
-    const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData.entries());
+  if (!product) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900">Product not found</h2>
+          <button 
+            onClick={() => navigateTo('products')}
+            className="mt-4 bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700"
+          >
+            Back to Products
+          </button>
+        </div>
+      </div>
+    );
+  }
 
-    try {
-        const response = await fetch(`${API_BASE_URL}/contact`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
+  const handleInquireClick = () => {
+    navigateTo('booking');
+  };
+
+  return (
+    <div className="animate-page-content-enter">
+      <Section id="product-detail" className="bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div className="flex justify-center">
+              <img 
+                src={product.image} 
+                alt={product.name}
+                className="w-full max-w-md h-96 object-cover rounded-lg shadow-lg"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = '/images/placeholder-product.jpg';
+                }}
+              />
+            </div>
+
+            <div>
+              <div className="mb-6">
+                <span className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">{product.category}</span>
+                <h1 className="text-4xl font-bold text-gray-900 mt-2">{product.name}</h1>
+                <p className="text-xl text-gray-600 mt-1">{product.brand}</p>
+              </div>
+
+              <p className="text-lg text-gray-700 mb-6">{product.longDescription}</p>
+
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">Specifications</h3>
+                <div className="space-y-3">
+                  {product.specs.map((spec, index) => (
+                    <div key={index} className="flex justify-between border-b border-gray-200 pb-2">
+                      <span className="font-medium text-gray-700">{spec.key}</span>
+                      <span className="text-gray-600">{spec.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <button 
+                onClick={handleInquireClick}
+                className="bg-red-600 text-white px-8 py-3 rounded-lg hover:bg-red-700 transition-colors font-semibold"
+              >
+                Inquire About This Product
+              </button>
+            </div>
+          </div>
+        </div>
+      </Section>
+    </div>
+  );
+};
+
+// ArtistCard Component
+const ArtistCard: FC<{ artist: ArtistShowcase; index: number }> = ({ artist, index }) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  const togglePlay = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play().catch(error => {
+          console.error('Error playing audio:', error);
         });
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        setIsSubmitted(true);
-    } catch (err) {
-        setError('Failed to send message. Please try again later.');
-    } finally {
-        setIsSubmitting(false);
+      }
+      setIsPlaying(!isPlaying);
     }
   };
 
-  const contactDetails = [
-    { icon: Phone, text: "+2348025028905", href: "tel:+2348025028905" },
-    { icon: Mail, text: "contact@boyalservice.com", href: "mailto:contact@boyalservice.com" },
-    { icon: MapPin, text: "Badore, Lagos, Nigeria  Map / landmark reference: Ajah, Lekki Lagos", href: "#" },
-  ];
+  const handleTimeUpdate = () => {
+    if (audioRef.current) {
+      setCurrentTime(audioRef.current.currentTime);
+      setDuration(audioRef.current.duration || 0);
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    if (audioRef.current) {
+      setDuration(audioRef.current.duration || 0);
+    }
+  };
+
+  const formatTime = (time: number) => {
+    if (isNaN(time)) return "0:00";
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (audioRef.current && duration > 0) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const percent = (e.clientX - rect.left) / rect.width;
+      audioRef.current.currentTime = percent * duration;
+    }
+  };
+
   return (
-    <PageContent title="Contact Us" subtitle="We're Here to Help. Reach Out with Any Questions or Inquiries.">
-      <Section id="contact-details">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
-          <div className="bg-white p-8 sm:p-12 rounded-2xl shadow-2xl">
-              {isSubmitted ? (
-                  <div className="text-center p-8 animate-fade-in-up">
-                      <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-                      <h2 className="text-2xl font-bold text-gray-900 mb-2">Thank You!</h2>
-                      <p className="text-gray-600 mb-6">Your message has been sent successfully. We will get back to you shortly.</p>
-                      <button
-                          onClick={() => setIsSubmitted(false)}
-                          className="bg-red-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-700 transition-all duration-300"
-                      >
-                          Send Another Message
-                      </button>
-                  </div>
-              ) : (
-                  <>
-                      <h2 className="text-3xl font-bold text-gray-900 mb-6">Send us a Message</h2>
-                      <form onSubmit={handleSubmit}>
-                          <div className="grid grid-cols-1 gap-6 mb-6">
-                              <input name="name" type="text" placeholder="Your Name" aria-label="Your Name" required className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"/>
-                              <input name="email" type="email" placeholder="Your Email" aria-label="Your Email" required className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"/>
-                              <textarea name="message" placeholder="Your Message" aria-label="Your Message" rows={5} required className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"></textarea>
-                          </div>
-                          {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-                          <button type="submit" disabled={isSubmitting} className="w-full bg-red-600 text-white font-bold py-4 px-8 rounded-lg hover:bg-red-700 transition-all duration-300 disabled:bg-gray-400">
-                              {isSubmitting ? 'Sending...' : 'Send Message'}
-                          </button>
-                      </form>
-                  </>
-              )}
+    <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 group">
+      <div className="relative h-48 overflow-hidden">
+        <img 
+          src={artist.albumArt} 
+          alt={`${artist.artistName} - ${artist.trackTitle}`}
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = '/images/placeholder-artist.jpg';
+          }}
+        />
+        <div className="absolute top-2 right-2">
+          <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+            artist.genre === 'Gospel' ? 'bg-purple-100 text-purple-800' :
+            artist.genre === 'Afrobeat' ? 'bg-green-100 text-green-800' :
+            artist.genre === 'Pop' ? 'bg-blue-100 text-blue-800' :
+            artist.genre === 'Rock' ? 'bg-orange-100 text-orange-800' :
+            'bg-gray-100 text-gray-800'
+          }`}>
+            {artist.genre}
+          </span>
+        </div>
+        
+        {/* Play/Pause overlay */}
+        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+          <button
+            onClick={togglePlay}
+            className="bg-red-600 text-white rounded-full p-3 hover:bg-red-700 transition-colors transform scale-90 group-hover:scale-100"
+            aria-label={isPlaying ? 'Pause' : 'Play preview'}
+          >
+            {isPlaying ? <Pause size={24} /> : <Play size={24} />}
+          </button>
+        </div>
+      </div>
+
+      <div className="p-4">
+        <h3 className="text-lg font-bold text-gray-900 mb-1 line-clamp-1">{artist.artistName}</h3>
+        <p className="text-red-600 font-semibold text-sm mb-2 line-clamp-1">{artist.trackTitle}</p>
+        <p className="text-gray-600 text-xs line-clamp-2 mb-3">{artist.description}</p>
+        
+        {/* Audio Player */}
+        <div className="space-y-2">
+          <audio
+            ref={audioRef}
+            src={artist.trackUrl}
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+            onTimeUpdate={handleTimeUpdate}
+            onLoadedMetadata={handleLoadedMetadata}
+            onEnded={() => setIsPlaying(false)}
+            preload="metadata"
+          />
+          
+          {/* Progress Bar */}
+          <div 
+            className="w-full bg-gray-200 rounded-full h-1.5 cursor-pointer"
+            onClick={handleProgressClick}
+          >
+            <div 
+              className="bg-red-600 h-1.5 rounded-full transition-all duration-100"
+              style={{ width: duration > 0 ? `${(currentTime / duration) * 100}%` : '0%' }}
+            />
           </div>
+          
+          {/* Time and Controls */}
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-gray-500">
+              {formatTime(currentTime)}
+            </span>
+            
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={togglePlay}
+                className="text-red-600 hover:text-red-700 transition-colors"
+                aria-label={isPlaying ? 'Pause' : 'Play'}
+              >
+                {isPlaying ? <Pause size={16} /> : <Play size={16} />}
+              </button>
+              
+              <button
+                onClick={() => {
+                  if (audioRef.current) {
+                    audioRef.current.currentTime = 0;
+                    audioRef.current.pause();
+                    setIsPlaying(false);
+                  }
+                }}
+                className="text-gray-500 hover:text-gray-700 transition-colors"
+                aria-label="Stop"
+              >
+                <Square size={14} />
+              </button>
+            </div>
+            
+            <span className="text-xs text-gray-500">
+              {formatTime(duration)}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// AboutPage Component
+const AboutPage: FC<{ navigateTo: (page: Page) => void }> = ({ navigateTo }) => {
+  const values = [
+      { icon: Heart, title: "Passion", description: "Our work is driven by a deep love for creating incredible audio-visual experiences." },
+      { icon: Star, title: "Excellence", description: "We uphold the highest standards, using top-tier equipment and expert techniques." },
+      { icon: Users, title: "Partnership", description: "We collaborate closely with our clients, treating their vision as our own." },
+  ];
+
+  const stats = [
+      { value: "10+", label: "Years of Experience" },
+      { value: "500+", label: "Successful Events" },
+      { value: "100%", label: "Client Satisfaction" },
+  ];
+
+  return (
+      <PageContent title="About Us" subtitle="The Passion and Expertise Behind Every Event">
+          {/* Our Story Section */}
+          <Section id="our-story" className="bg-white">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+                  <div className="prose prose-lg max-w-none text-gray-600">
+                      <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Journey in Sound</h2>
+                      <p className="mb-4">
+                          Founded over a decade ago with a single microphone and an immense passion for audio, Boyal Integrated Service has grown into a premier provider of production and event services. Our philosophy is simple: combine cutting-edge technology with creative artistry to produce experiences that resonate.
+                      </p>
+                      <p className="mb-4">
+                          We believe that every event, from a corporate conference to a sold-out concert, is a unique story waiting to be told. Our role is to provide the perfect sonic and visual backdrop for that story. We are a team of engineers, planners, and artists dedicated to the pursuit of perfection.
+                      </p>
+                      <p>
+                          What sets us apart is our commitment to understanding your vision and translating it into an unforgettable experience. We don't just provide equipment; we provide solutions that elevate your event to new heights.
+                      </p>
+                  </div>
+                  <div className="relative">
+                      <img 
+                          src="/images/services/concert.jpeg" 
+                          alt="The Boyal Integrated Service team collaborating in their studio." 
+                          className="rounded-xl shadow-2xl w-full h-auto object-cover"
+                          onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = '/images/placeholder-service.jpg';
+                          }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-xl"></div>
+                  </div>
+              </div>
+          </Section>
+
+          {/* Stats Section */}
+          <section className="bg-gray-900 py-16">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                      {stats.map((stat, index) => (
+                          <div key={stat.label} className="animate-fade-in" style={{ animationDelay: `${index * 200}ms` }}>
+                              <p className="text-5xl font-extrabold text-red-500 mb-2">{stat.value}</p>
+                              <p className="text-lg font-medium text-gray-300">{stat.label}</p>
+                          </div>
+                      ))}
+                  </div>
+              </div>
+          </section>
+
+          {/* Core Values Section */}
+          <Section id="core-values" className="bg-gray-50">
+               <div className="text-center mb-16">
+                  <h2 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">Our Core Values</h2>
+                  <p className="text-red-600 mt-4 text-lg">The Principles That Guide Us</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  {values.map((value, index) => (
+                      <div 
+                          key={value.title} 
+                          className="text-center p-8 bg-white rounded-xl shadow-lg border-t-4 border-red-500 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                      >
+                          <div className="flex items-center justify-center h-16 w-16 rounded-full bg-red-100 text-red-600 mx-auto mb-6">
+                              <value.icon className="h-8 w-8" />
+                          </div>
+                          <h3 className="text-xl font-bold text-gray-900 mb-2">{value.title}</h3>
+                          <p className="text-gray-600">{value.description}</p>
+                      </div>
+                  ))}
+              </div>
+          </Section>
+
+          {/* Artist Collaborations Section */}
+          <Section id="artist-collaborations" className="bg-white">
+              <div className="text-center mb-16">
+                  <h2 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">Artist Collaborations</h2>
+                  <p className="text-red-600 mt-4 text-lg">Listen to Our Work with Talented Artists</p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {artistShowcases.map((artist, index) => (
+                      <ArtistCard key={`${artist.artistName}-${index}`} artist={artist} index={index} />
+                  ))}
+              </div>
+          </Section>
+
+          {/* Technology Section */}
+          <Section id="technology" className="bg-gray-50">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+                  <div>
+                      <img 
+                          src="/images/services/equipment.jpg" 
+                          alt="State-of-the-art audio equipment used by Boyal Integrated Service"
+                          className="rounded-xl shadow-2xl w-full h-auto object-cover"
+                          onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = '/images/placeholder-service.jpg';
+                          }}
+                      />
+                  </div>
+                  <div className="prose prose-lg max-w-none text-gray-600">
+                      <h2 className="text-3xl font-bold text-gray-900 mb-4">State-of-the-Art Technology</h2>
+                      <p className="mb-4">
+                          We invest in the latest audio and visual technology to ensure your event sounds and looks exceptional. From digital mixing consoles to advanced wireless systems, our equipment is regularly updated and meticulously maintained.
+                      </p>
+                      <p className="mb-4">
+                          Our inventory includes top brands like Shure, Yamaha, Martin Audio, and Digico, ensuring professional-grade quality for every project. We believe that great results come from the perfect combination of skilled operators and superior equipment.
+                      </p>
+                      <ul className="list-disc list-inside space-y-2 text-gray-600">
+                          <li>Digital mixing consoles with full recall capabilities</li>
+                          <li>Advanced wireless microphone systems</li>
+                          <li>Line array speaker systems for optimal coverage</li>
+                          <li>Redundant backup systems for critical events</li>
+                      </ul>
+                  </div>
+              </div>
+          </Section>
+
+          {/* Process Section */}
+          <Section id="process" className="bg-white">
+              <div className="text-center mb-16">
+                  <h2 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">Our Process</h2>
+                  <p className="text-red-600 mt-4 text-lg">How We Deliver Exceptional Results</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                  {[
+                      { step: "01", title: "Consultation", description: "We listen to your vision and requirements" },
+                      { step: "02", title: "Planning", description: "Detailed technical planning and equipment selection" },
+                      { step: "03", title: "Execution", description: "Professional setup and operation during your event" },
+                      { step: "04", title: "Support", description: "Post-event follow-up and ongoing relationship" }
+                  ].map((item) => (
+                      <div key={item.step} className="text-center">
+                          <div className="w-16 h-16 bg-red-600 text-white rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">
+                              {item.step}
+                          </div>
+                          <h3 className="text-lg font-semibold text-gray-900 mb-2">{item.title}</h3>
+                          <p className="text-gray-600 text-sm">{item.description}</p>
+                      </div>
+                  ))}
+              </div>
+          </Section>
+
+          <CtaSection navigateTo={navigateTo} />
+      </PageContent>
+  );
+};
+
+// Gallery Page
+const GalleryPage: FC = () => {
+  return (
+    <PageContent title="Our Gallery" subtitle="A visual journey through our events and productions">
+      <Section id="gallery">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {galleryImages.map((image, index) => (
+            <div key={index} className="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <img 
+                src={image.src} 
+                alt={image.caption}
+                className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = '/images/placeholder-gallery.jpg';
+                }}
+              />
+              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-70 transition-all duration-300 flex items-end">
+                <div className="p-4 text-white transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                  <p className="text-sm">{image.caption}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Section>
+    </PageContent>
+  );
+};
+
+// Booking Page
+const BookingPage: FC<{ appState: AppState; services: Service[] }> = ({ appState, services }) => {
+  const [formData, setFormData] = useState<BookingFormData>({
+    fullName: '',
+    email: '',
+    phone: '',
+    eventType: '',
+    subject: '',
+    service: '',
+    eventDate: '',
+    details: ''
+  });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitMessage(null);
+
+    try {
+      console.log('📤 Submitting booking form data:', formData);
+      
+      const bookingData = {
+        fullName: formData.fullName.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+        eventType: formData.eventType,
+        subject: formData.subject.trim(),
+        service: formData.service,
+        eventDate: formData.eventDate,
+        details: formData.details.trim()
+      };
+
+      console.log('📦 Final booking data being sent:', bookingData);
+
+      const response = await fetch(`${API_BASE_URL}/booking`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bookingData),
+      });
+
+      console.log('📨 Response status:', response.status);
+      console.log('📨 Response ok:', response.ok);
+
+      let result;
+      try {
+        result = await response.json();
+        console.log('📨 Response data:', result);
+      } catch (parseError) {
+        console.error('❌ Failed to parse response:', parseError);
+        throw new Error('Invalid response from server');
+      }
+
+      if (response.ok) {
+        setSubmitMessage({
+          type: 'success',
+          text: result.message || '🎉 Booking request submitted successfully! We will contact you within 24 hours.'
+        });
+        setFormData({
+          fullName: '',
+          email: '',
+          phone: '',
+          eventType: '',
+          subject: '',
+          service: '',
+          eventDate: '',
+          details: ''
+        });
+      } else {
+        if (response.status === 500) {
+          throw new Error('Server error. Please try again later or contact us directly.');
+        } else {
+          throw new Error(result.error || result.message || `Failed to submit booking (Status: ${response.status})`);
+        }
+      }
+    } catch (error) {
+      console.error('❌ Booking submission error:', error);
+      setSubmitMessage({
+        type: 'error',
+        text: error instanceof Error ? error.message : '❌ Failed to submit booking. Please try again or contact us directly.'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const isFormValid = formData.fullName.trim() && 
+                     formData.email.trim() && 
+                     formData.eventType && 
+                     formData.service && 
+                     formData.subject.trim() && 
+                     formData.details.trim();
+
+  return (
+    <PageContent title="Book Our Services" subtitle="Let's discuss your event and how we can make it unforgettable">
+      <Section id="booking">
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            {submitMessage && (
+              <div className={`mb-6 p-4 rounded-lg border ${
+                submitMessage.type === 'success' 
+                  ? 'bg-green-50 border-green-200 text-green-800' 
+                  : 'bg-red-50 border-red-200 text-red-800'
+              }`}>
+                <div className="flex items-center">
+                  {submitMessage.type === 'success' ? (
+                    <CheckCircle className="h-5 w-5 mr-2 flex-shrink-0" />
+                  ) : (
+                    <X className="h-5 w-5 mr-2 flex-shrink-0" />
+                  )}
+                  <span>{submitMessage.text}</span>
+                </div>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
+                    Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    id="fullName"
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleChange}
+                    required
+                    disabled={isSubmitting}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    placeholder="Your full name"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    disabled={isSubmitting}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    placeholder="your.email@example.com"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    disabled={isSubmitting}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    placeholder="+1 (555) 123-4567"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="eventDate" className="block text-sm font-medium text-gray-700 mb-2">
+                    Event Date
+                  </label>
+                  <input
+                    type="date"
+                    id="eventDate"
+                    name="eventDate"
+                    value={formData.eventDate}
+                    onChange={handleChange}
+                    min={new Date().toISOString().split('T')[0]}
+                    disabled={isSubmitting}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="eventType" className="block text-sm font-medium text-gray-700 mb-2">
+                  Event Type *
+                </label>
+                <select
+                  id="eventType"
+                  name="eventType"
+                  value={formData.eventType}
+                  onChange={handleChange}
+                  required
+                  disabled={isSubmitting}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                >
+                  <option value="">Select Event Type</option>
+                  <option value="Wedding">Wedding</option>
+                  <option value="Corporate">Corporate Event</option>
+                  <option value="Concert">Concert</option>
+                  <option value="Conference">Conference</option>
+                  <option value="Private Party">Private Party</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="service" className="block text-sm font-medium text-gray-700 mb-2">
+                  Service Interested In *
+                </label>
+                <select
+                  id="service"
+                  name="service"
+                  value={formData.service}
+                  onChange={handleChange}
+                  required
+                  disabled={isSubmitting}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                >
+                  <option value="">Select a Service</option>
+                  {services.map(service => (
+                    <option key={service.id} value={service.title}>{service.title}</option>
+                  ))}
+                  <option value="Product Inquiry">Product Inquiry</option>
+                  <option value="General Consultation">General Consultation</option>
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
+                  Subject *
+                </label>
+                <input
+                  type="text"
+                  id="subject"
+                  name="subject"
+                  value={formData.subject}
+                  onChange={handleChange}
+                  required
+                  disabled={isSubmitting}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  placeholder="Brief description of your needs"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="details" className="block text-sm font-medium text-gray-700 mb-2">
+                  Event Details *
+                </label>
+                <textarea
+                  id="details"
+                  name="details"
+                  value={formData.details}
+                  onChange={handleChange}
+                  required
+                  rows={6}
+                  disabled={isSubmitting}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  placeholder="Please provide details about your event, including location, expected number of guests, specific requirements, budget, timeline, etc."
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSubmitting || !isFormValid}
+                className="w-full bg-red-600 text-white py-3 px-4 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 font-semibold"
+              >
+                {isSubmitting ? (
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                    Submitting...
+                  </div>
+                ) : (
+                  'Submit Booking Request'
+                )}
+              </button>
+              
+              <p className="text-sm text-gray-500 text-center mt-4">
+                We'll get back to you within 24 hours to discuss your event requirements.
+              </p>
+            </form>
+          </div>
+        </div>
+      </Section>
+    </PageContent>
+  );
+};
+
+// Contact Page
+const contactDetails = [
+  {
+    icon: Phone,
+    text: '+2348025028905',
+    href: 'tel:+2348025028905'
+  },
+  {
+    icon: Mail,
+    text: 'info@boyalservice.com',
+    href: 'mailto:info@boyalservice.com'
+  },
+  {
+    icon: MapPin,
+    text: '52, Greenville estate road, Badore  Ajah, Lekki Lagos',
+    href: 'https://maps.app.goo.gl/bCHdnuB3v37o1BYU9'
+  }
+];
+
+const ContactPage: FC = () => {
+  const [formData, setFormData] = useState<ContactFormData>({
+    name: '',
+    email: '',
+    message: ''
+  });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitMessage(null);
+
+    try {
+      console.log('📤 Submitting contact form data:', formData);
+      
+      const contactData = {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        message: formData.message.trim()
+      };
+
+      console.log('📦 Final contact data being sent:', contactData);
+
+      const response = await fetch(`${API_BASE_URL}/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(contactData),
+      });
+
+      console.log('📨 Response status:', response.status);
+      console.log('📨 Response ok:', response.ok);
+
+      let result;
+      try {
+        result = await response.json();
+        console.log('📨 Response data:', result);
+      } catch (parseError) {
+        console.error('❌ Failed to parse response:', parseError);
+        throw new Error('Invalid response from server');
+      }
+
+      if (response.ok) {
+        setSubmitMessage({
+          type: 'success',
+          text: result.message || '🎉 Message sent successfully! We will get back to you within 2-4 hours.'
+        });
+        setFormData({
+          name: '',
+          email: '',
+          message: ''
+        });
+      } else {
+        if (response.status === 500) {
+          throw new Error('Server error. Please try again later or call us directly.');
+        } else {
+          throw new Error(result.error || result.message || `Failed to send message (Status: ${response.status})`);
+        }
+      }
+    } catch (error) {
+      console.error('❌ Contact submission error:', error);
+      setSubmitMessage({
+        type: 'error',
+        text: error instanceof Error ? error.message : '❌ Failed to send message. Please try again or call us directly.'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const isFormValid = formData.name.trim() && formData.email.trim() && formData.message.trim();
+
+  return (
+    <PageContent title="Contact Us" subtitle="Get in touch with our team for any inquiries or support">
+      <Section id="contact">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Send us a Message</h2>
+            
+            <div className="bg-white rounded-lg shadow-lg p-8">
+              {submitMessage && (
+                <div className={`mb-6 p-4 rounded-lg border ${
+                  submitMessage.type === 'success' 
+                    ? 'bg-green-50 border-green-200 text-green-800' 
+                    : 'bg-red-50 border-red-200 text-red-800'
+                }`}>
+                  <div className="flex items-center">
+                    {submitMessage.type === 'success' ? (
+                      <CheckCircle className="h-5 w-5 mr-2 flex-shrink-0" />
+                    ) : (
+                      <X className="h-5 w-5 mr-2 flex-shrink-0" />
+                    )}
+                    <span>{submitMessage.text}</span>
+                  </div>
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                    Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                    disabled={isSubmitting}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    placeholder="Your full name"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    disabled={isSubmitting}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    placeholder="your.email@example.com"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
+                    Message *
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    value={formData.message}
+                    onChange={handleChange}
+                    required
+                    rows={6}
+                    disabled={isSubmitting}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    placeholder="Tell us how we can help you..."
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting || !isFormValid}
+                  className="w-full bg-red-600 text-white py-3 px-4 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 font-semibold"
+                >
+                  {isSubmitting ? (
+                    <div className="flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                      Sending...
+                    </div>
+                  ) : (
+                    'Send Message'
+                  )}
+                </button>
+                
+                <p className="text-sm text-gray-500 text-center mt-4">
+                  We typically respond to all messages within 2-4 hours during business hours.
+                </p>
+              </form>
+            </div>
+          </div>
+
           <div className="space-y-8">
               <h2 className="text-3xl font-bold text-gray-900">Contact Information</h2>
               <p className="text-gray-600 text-lg">
@@ -1372,9 +2572,7 @@ const ContactPage: FC = () => {
   );
 };
 
-
-// ~~~ LIVE CHAT COMPONENT ~~~
-
+// Live Chat Component
 interface LiveChatWidgetProps {
   messages: ChatMessage[];
   onSendMessage: (text: string) => void;
@@ -1416,7 +2614,7 @@ const LiveChatWidget: FC<LiveChatWidgetProps> = ({ messages, onSendMessage, isTy
             <div className="space-y-4">
               {messages.map((msg) => (
                 <div key={msg.id} className={`flex items-end gap-2 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  {msg.sender === 'ai' && <img src="/public/images/logo.png" alt="AI Assistant" className="w-8 h-8 rounded-full bg-gray-900 object-contain p-1 flex-shrink-0" />}
+                  {msg.sender === 'ai' && <img src="/images/logo.png" alt="AI Assistant" className="w-8 h-8 rounded-full bg-gray-900 object-contain p-1 flex-shrink-0" />}
                   {msg.sender === 'ai' && msg.text === '' && !msg.error ? (
                      <div className="bg-gray-200 rounded-2xl rounded-bl-none p-3">
                         <div className="flex items-center space-x-1">
@@ -1466,9 +2664,7 @@ const LiveChatWidget: FC<LiveChatWidgetProps> = ({ messages, onSendMessage, isTy
   );
 };
 
-
 // ~~~ MAIN APP COMPONENT ~~~
-
 const App: FC = () => {
   const [appState, setAppState] = useState<AppState>({ currentPage: 'home', currentService: null, currentProduct: null });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -1484,44 +2680,220 @@ const App: FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Mock data for fallback
+  const mockServices: Service[] = [
+    { 
+      id: 1,
+      iconName: 'Music', 
+      icon: Music,
+      title: 'Music Production', 
+      description: 'Professional studio recording, mixing, and mastering services for artists and bands.',
+      longDescription: 'Our state-of-the-art music production services provide everything you need to bring your musical vision to life. From initial recording sessions to final mastering, we work with artists, bands, and producers to create professional-quality audio. Our experienced engineers and producers use the latest digital audio workstations and analog equipment to ensure your music sounds its best across all platforms.',
+      features: ["Multi-track Recording", "Mixing & Mastering", "Vocal Production", "Beat Making", "Audio Restoration", "Session Musicians"],
+      image: "/images/services/Music.jpg",
+      highlightImage: "/images/services/Music.jpg",
+      category: 'Production',
+    },
+    { 
+      id: 2,
+      iconName: 'MonitorSpeaker', 
+      icon: MonitorSpeaker,
+      title: 'Concert Productions', 
+      description: 'Complete concert and live event production including staging, lighting, and audio.',
+      longDescription: 'Transform any venue into a world-class concert experience with our comprehensive production services. We handle every aspect of live event production, from stage design and rigging to advanced lighting systems and crystal-clear audio reinforcement. Our team works with artists, promoters, and venues to create unforgettable live experiences that engage audiences and showcase performers at their best.',
+      features: ["Stage Design & Rigging", "Lighting Systems", "Video Walls", "PA Systems", "Backline Equipment", "Crew Management"],
+      image: "/images/services/concert.jpeg",
+      highlightImage: "/images/services/concert.jpeg",
+      category: 'Production',
+    },
+    { 
+      id: 3,
+      iconName: 'Mic', 
+      icon: Mic,
+      title: 'Sound Reinforcement', 
+      description: 'Professional audio systems for events, conferences, and live performances of any size.',
+      longDescription: 'Ensure every word and note is heard with perfect clarity through our professional sound reinforcement services. We design and implement audio solutions tailored to your specific venue and event requirements. From intimate corporate meetings to large-scale outdoor festivals, our expert audio engineers use top-tier equipment to deliver pristine sound quality that enhances the audience experience.',
+      features: ["PA System Design", "Wireless Microphones", "Monitor Systems", "Audio Delay Towers", "System Tuning", "Live Mixing"],
+      image: "/images/services/Sound.jpg",
+      highlightImage: "/images/services/Sound.jpg",
+      category: 'Live Sound',
+    },
+    { 
+      id: 4,
+      iconName: 'Headphones', 
+      icon: Headphones,
+      title: 'Studio Recording', 
+      description: 'Professional recording sessions in our acoustically treated studio environment.',
+      longDescription: 'Capture your sound with the highest fidelity in our professionally designed recording studio. Featuring acoustically treated rooms, high-end microphones, and both analog and digital recording equipment, we provide the perfect environment for vocals, instruments, and full band recordings. Work with experienced engineers who understand how to get the best performances and sounds.',
+      features: ["Vocal Recording", "Instrument Tracking", "Sound Proofing", "Professional Engineers", "Analog & Digital", "Editing Services"],
+      image: "/images/services/studio.jpg",
+      highlightImage: "/images/services/studio-recording.jpg",
+      category: 'Production',
+    },
+    { 
+      id: 5,
+      iconName: 'PartyPopper', 
+      icon: PartyPopper,
+      title: 'Event Planning', 
+      description: 'Complete event planning and coordination services for corporate and private events.',
+      longDescription: 'From concept to execution, our event planning service ensures every detail is perfect. We coordinate all aspects of your event including venue selection, vendor management, timeline coordination, and technical requirements. Whether it\'s a corporate conference, wedding, or private party, we handle the logistics so you can focus on enjoying your event.',
+      features: ["Venue Selection", "Vendor Coordination", "Timeline Management", "Budget Planning", "Technical Coordination", "On-site Management"],
+      image: "/images/services/event-planning.jpg",
+      highlightImage: "/images/services/event-planning.jpg",
+      category: 'Planning',
+    },
+    { 
+      id: 6,
+      iconName: 'Cable', 
+      icon: Cable,
+      title: 'Equipment Rental', 
+      description: 'High-quality audio, lighting, and production equipment rental services.',
+      longDescription: 'Need professional production equipment? We offer a comprehensive range of rental options including complete PA systems, microphones, mixing consoles, lighting equipment, and staging. All equipment is regularly maintained, tested, and comes with optional technical support. Perfect for events, tours, or when you need to supplement your existing gear.',
+      features: ["PA Systems", "Microphones", "Mixing Consoles", "Lighting Equipment", "Staging", "Technical Support"],
+      image: "/images/services/equipment.jpg",
+      highlightImage: "/images/services/equipment.jpg",
+      category: 'Live Sound',
+    }
+  ];
+
+  const mockProducts: Product[] = [
+    {
+      id: 1,
+      name: "Drums Chair",
+      category: 'Lighting',
+      brand: "Drumsboy",
+      image: "/images/products/1o.png",
+      description: "Drum Throne Padded Braced Seat / Stool.",
+      longDescription: "High Load Capacity: We add three double-layer thickened metal support bars to the base to provide additional support for the entire drum throne. The height of the drum stool is about 20.8inch, with the load capacity up to 370lbs. It is very suitable for both children and adults",
+      specs: [
+        { key: "Frame Material", value: "Metal" },
+        { key: "Item Weight", value: "4 Pounds" },
+        { key: "Shape", value: "Round" },
+        { key: "Seat Material Type", value: "Metal" }
+      ]
+    }
+  ];
+
+  const mockTestimonials: Testimonial[] = [
+    { 
+      id: 1,
+      quote: "Boyal Integrated Service transformed our annual gala. The sound was impeccable and the team was incredibly professional. A flawless experience!", 
+      author: "Jane Doe", 
+      event: "Corporate Gala", 
+      avatar: "https://i.pravatar.cc/150?u=jane" 
+    }
+  ];
+
   useEffect(() => {
     const fetchData = async () => {
-        try {
-            const [servicesRes, productsRes, testimonialsRes] = await Promise.all([
-                fetch(`${API_BASE_URL}/services`),
-                fetch(`${API_BASE_URL}/products`),
-                fetch(`${API_BASE_URL}/testimonials`),
-            ]);
-            
-            if (!servicesRes.ok || !productsRes.ok || !testimonialsRes.ok) {
-                throw new Error('Failed to fetch data from the server.');
-            }
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        console.log('Fetching data from API...');
+        
+        const [servicesRes, productsRes, testimonialsRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/services`),
+          fetch(`${API_BASE_URL}/products`),
+          fetch(`${API_BASE_URL}/testimonials`),
+        ]);
 
-            const servicesData: Service[] = await servicesRes.json();
-            const productsData: Product[] = await productsRes.json();
-            const testimonialsData: Testimonial[] = await testimonialsRes.json();
-            
-            // Map icon names to actual components
-            const servicesWithIcons = servicesData.map(s => ({...s, icon: serviceIcons[s.iconName]}));
-
+        // Handle services
+        if (servicesRes.ok) {
+          const servicesData = await servicesRes.json();
+          console.log('Services data:', servicesData);
+          
+          if (servicesData && servicesData.length > 0) {
+            const servicesWithIcons = servicesData.map((service: any) => {
+              const mappedService: Service = {
+                id: service.id,
+                iconName: service.iconName || service.title?.replace(/\s+/g, '') || 'Music',
+                title: service.title || 'Service',
+                description: service.description || 'Professional service',
+                longDescription: service.longDescription || service.description || 'Detailed description coming soon.',
+                features: service.features || ['Professional Service', 'Quality Guaranteed'],
+                image: service.image || '/images/services/default.jpg',
+                highlightImage: service.highlightImage || service.image || '/images/services/default.jpg',
+                category: (service.category as ServiceCategory) || 'Production'
+              };
+              mappedService.icon = serviceIcons[mappedService.iconName] || Music;
+              return mappedService;
+            });
             setServices(servicesWithIcons);
-            setProducts(productsData);
-            setTestimonials(testimonialsData);
-
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'An unknown error occurred');
-        } finally {
-            setIsLoading(false);
+          } else {
+            setServices(mockServices);
+          }
+        } else {
+          setServices(mockServices);
         }
+
+        // Handle products
+        if (productsRes.ok) {
+          const productsData = await productsRes.json();
+          console.log('Products data:', productsData);
+          
+          if (productsData && productsData.length > 0) {
+            const productsMapped = productsData.map((product: any) => ({
+              id: product.id,
+              name: product.name,
+              category: (product.category as ProductCategory) || 'Microphones',
+              brand: product.brand || 'Generic',
+              image: product.image || '/images/products/default.png',
+              description: product.description || 'Professional equipment',
+              longDescription: product.longDescription || product.description || 'Detailed product description coming soon.',
+              specs: product.specs || [
+                { key: "Type", value: "Professional" },
+                { key: "Quality", value: "Premium" }
+              ]
+            }));
+            setProducts(productsMapped);
+          } else {
+            setProducts(mockProducts);
+          }
+        } else {
+          setProducts(mockProducts);
+        }
+
+        // Handle testimonials
+        if (testimonialsRes.ok) {
+          const testimonialsData = await testimonialsRes.json();
+          console.log('Testimonials data:', testimonialsData);
+          
+          if (testimonialsData && testimonialsData.length > 0) {
+            const testimonialsMapped = testimonialsData.map((testimonial: any, index: number) => ({
+              id: testimonial.id || index + 1,
+              quote: testimonial.quote || testimonial.content || 'Great service!',
+              author: testimonial.author || testimonial.customerName || 'Happy Client',
+              event: testimonial.event || testimonial.company || 'Event',
+              avatar: testimonial.avatar || testimonial.imageUrl || `https://i.pravatar.cc/150?u=${testimonial.author || index}`
+            }));
+            setTestimonials(testimonialsMapped);
+          } else {
+            setTestimonials(mockTestimonials);
+          }
+        } else {
+          setTestimonials(mockTestimonials);
+        }
+
+      } catch (err) {
+        console.error('Data fetching error:', err);
+        setError('Failed to load data from server. Using demo data.');
+        setServices(mockServices);
+        setProducts(mockProducts);
+        setTestimonials(mockTestimonials);
+      } finally {
+        setIsLoading(false);
+      }
     };
+    
     fetchData();
   }, []);
 
   useEffect(() => {
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+      const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GOOGLE_API_KEY || 'demo-key' });
       const chatInstance = ai.chats.create({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-2.0-flash-exp',
         config: {
           systemInstruction: 'You are a friendly and helpful customer support agent for Boyal Integrated Service. Your goal is to answer questions about their services (Music Production, Concert Productions, etc.) and products (microphones, speakers, etc.), help users with booking inquiries, and provide information about the company. Be concise and professional.',
         },
@@ -1549,25 +2921,24 @@ const App: FC = () => {
     setIsAiTyping(true);
 
     try {
-        const stream = await chat.sendMessageStream({ message: text });
-        
-        let responseText = '';
-        for await (const chunk of stream) {
-            responseText += chunk.text;
-            setMessages(prev => prev.map(msg => 
-                msg.id === aiMessageId ? { ...msg, text: responseText } : msg
-            ));
-        }
-
-    } catch (error) {
-        console.error("Gemini API Error:", error);
+      const stream = await chat.sendMessageStream({ message: text });
+      
+      let responseText = '';
+      for await (const chunk of stream) {
+        responseText += chunk.text;
         setMessages(prev => prev.map(msg => 
-            msg.id === aiMessageId 
-            ? { ...msg, text: "Sorry, I encountered an error. Please try again.", error: true } 
-            : msg
+          msg.id === aiMessageId ? { ...msg, text: responseText } : msg
         ));
+      }
+    } catch (error) {
+      console.error("Gemini API Error:", error);
+      setMessages(prev => prev.map(msg => 
+        msg.id === aiMessageId 
+        ? { ...msg, text: "Sorry, I encountered an error. Please try again.", error: true } 
+        : msg
+      ));
     } finally {
-        setIsAiTyping(false);
+      setIsAiTyping(false);
     }
   };
 
@@ -1575,21 +2946,20 @@ const App: FC = () => {
     const isMainPage = ['home', 'about', 'services', 'gallery', 'products', 'contact'].includes(page);
 
     setAppState(prevState => {
-        let nextState = {...prevState, currentPage: page};
-        
-        if (page === 'serviceDetail') {
-            nextState.currentService = detailItem;
-        }
-        if (page === 'productDetail') {
-            nextState.currentProduct = detailItem;
-        }
-        
-        // Reset context when moving to a main page
-        if(isMainPage) {
-            nextState.currentService = null;
-            nextState.currentProduct = null;
-        }
-        return nextState;
+      let nextState = {...prevState, currentPage: page};
+      
+      if (page === 'serviceDetail') {
+        nextState.currentService = detailItem;
+      }
+      if (page === 'productDetail') {
+        nextState.currentProduct = detailItem;
+      }
+      
+      if(isMainPage) {
+        nextState.currentService = null;
+        nextState.currentProduct = null;
+      }
+      return nextState;
     });
 
     setIsMenuOpen(false);
@@ -1598,27 +2968,43 @@ const App: FC = () => {
   
   const renderPage = () => {
     if (isLoading) {
-        return (
-            <div className="h-screen flex items-center justify-center">
-                <div className="text-xl font-semibold">Loading...</div>
-            </div>
-        );
+      return (
+        <div className="h-screen flex items-center justify-center bg-gray-50">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-red-600 mx-auto mb-4"></div>
+            <h2 className="text-xl font-semibold text-gray-700">Loading Boyal Integrated Service...</h2>
+            <p className="text-gray-500 mt-2">Preparing your experience</p>
+          </div>
+        </div>
+      );
     }
-    if (error) {
-        return (
-            <div className="h-screen flex items-center justify-center text-center p-4">
-                <div>
-                    <h2 className="text-2xl font-bold text-red-600">Failed to load content</h2>
-                    <p className="text-gray-600 mt-2">{error}</p>
-                </div>
+
+    if (error && services.length === 0) {
+      return (
+        <div className="h-screen flex items-center justify-center bg-gray-50">
+          <div className="text-center p-8 max-w-md">
+            <div className="bg-yellow-100 border border-yellow-400 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+              <Info className="h-8 w-8 text-yellow-600" />
             </div>
-        );
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Demo Mode</h2>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <p className="text-sm text-gray-500">You can still explore all features with sample data.</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="mt-4 bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors"
+            >
+              Retry Connection
+            </button>
+          </div>
+        </div>
+      );
     }
+
     switch (appState.currentPage) {
       case 'home': return <HomePage services={services} testimonials={testimonials} navigateTo={navigateTo} />;
       case 'about': return <AboutPage navigateTo={navigateTo} />;
       case 'services': return <ServicesPage services={services} navigateTo={navigateTo} />;
-      case 'serviceDetail': return <ServiceDetailPage services={services} serviceTitle={appState.currentService!} navigateTo={navigateTo} />;
+      case 'serviceDetail': return <ServiceDetailPage serviceName={appState.currentService} navigateTo={navigateTo} />;
       case 'gallery': return <GalleryPage />;
       case 'products': return <ProductsPage products={products} navigateTo={navigateTo} />;
       case 'productDetail': return <ProductDetailPage products={products} productName={appState.currentProduct!} navigateTo={navigateTo} />;
@@ -1629,14 +3015,14 @@ const App: FC = () => {
   };
 
   return (
-    <div className="bg-white text-gray-800">
+    <div className="bg-white text-gray-800 min-h-screen">
       <nav role="navigation" aria-label="Main navigation" className="bg-white/80 backdrop-blur-md sticky top-0 z-40 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             <div className="flex items-center">
-                <button onClick={() => navigateTo('home')} className="flex-shrink-0 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 rounded-lg p-2">
-                    <img src="/public/images/logo.png" alt="Boyal Integrated Service logo" className="h-16 w-auto" />
-                </button>
+              <button onClick={() => navigateTo('home')} className="flex-shrink-0 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 rounded-lg p-2">
+                <img src="/images/logo.png" alt="Boyal Integrated Service logo" className="h-16 w-auto" />
+              </button>
             </div>
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-1">
@@ -1687,7 +3073,9 @@ const App: FC = () => {
               <ul className="mt-4 space-y-2">
                 {services.slice(0, 4).map(s => (
                   <li key={s.title}>
-                    <button onClick={() => navigateTo('serviceDetail', s.title)} className="text-base text-gray-300 hover:text-white">{s.title}</button>
+                    <button onClick={() => navigateTo('serviceDetail', s.title)} className="text-base text-gray-300 hover:text-white transition-colors text-left">
+                      {s.title}
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -1697,24 +3085,36 @@ const App: FC = () => {
               <ul className="mt-4 space-y-2">
                  {['about', 'gallery', 'products', 'contact'].map(p => (
                    <li key={p}>
-                     <button onClick={() => navigateTo(p as Page)} className="text-base text-gray-300 hover:text-white capitalize">{p}</button>
+                     <button onClick={() => navigateTo(p as Page)} className="text-base text-gray-300 hover:text-white transition-colors text-left capitalize">
+                       {p}
+                     </button>
                    </li>
                  ))}
               </ul>
             </div>
             <div className="col-span-2 md:col-span-2">
-                <h3 className="text-sm font-semibold text-gray-400 tracking-wider uppercase">Connect With Us</h3>
-                <p className="mt-4 text-base text-gray-300">Follow us on social media for the latest updates and behind-the-scenes content.</p>
-                <div className="flex space-x-6 mt-4">
-                    <a href="#" aria-label="Facebook" className="text-gray-400 hover:text-white"><Facebook size={24}/></a>
-                    <a href="#" aria-label="Twitter" className="text-gray-400 hover:text-white"><Twitter size={24}/></a>
-                    <a href="#" aria-label="Instagram" className="text-gray-400 hover:text-white"><Instagram size={24}/></a>
-                    <a href="#" aria-label="LinkedIn" className="text-gray-400 hover:text-white"><Linkedin size={24}/></a>
-                </div>
+              <h3 className="text-sm font-semibold text-gray-400 tracking-wider uppercase">Connect With Us</h3>
+              <p className="mt-4 text-base text-gray-300">Follow us on social media for the latest updates and behind-the-scenes content.</p>
+              <div className="flex space-x-6 mt-4">
+                <a href="#" aria-label="Facebook" className="text-gray-400 hover:text-white transition-colors">
+                  <Facebook size={24}/>
+                </a>
+                <a href="#" aria-label="Twitter" className="text-gray-400 hover:text-white transition-colors">
+                  <Twitter size={24}/>
+                </a>
+                <a href="#" aria-label="Instagram" className="text-gray-400 hover:text-white transition-colors">
+                  <Instagram size={24}/>
+                </a>
+                <a href="#" aria-label="LinkedIn" className="text-gray-400 hover:text-white transition-colors">
+                  <Linkedin size={24}/>
+                </a>
+              </div>
             </div>
           </div>
           <div className="mt-8 border-t border-gray-700 pt-8 text-center">
-            <p className="text-base text-gray-400">&copy; {new Date().getFullYear()} Boyal Integrated Service. All rights reserved.</p>
+            <p className="text-base text-gray-400">
+              &copy; {new Date().getFullYear()} Boyal Integrated Service. All rights reserved.
+            </p>
           </div>
         </div>
       </footer>
