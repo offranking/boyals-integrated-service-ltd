@@ -1,0 +1,57 @@
+{
+  "providers": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-boyals-dev-d6d6b-authRole",
+      "UnauthRoleArn": "arn:aws:iam::793872272814:role/amplify-boyals-dev-d6d6b-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::793872272814:role/amplify-boyals-dev-d6d6b-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-boyals-dev-d6d6b-deployment",
+      "UnauthRoleName": "amplify-boyals-dev-d6d6b-unauthRole",
+      "StackName": "amplify-boyals-dev-d6d6b",
+      "StackId": "arn:aws:cloudformation:us-east-1:793872272814:stack/amplify-boyals-dev-d6d6b/da734b70-ae6e-11f0-bb24-0affe38651ad",
+      "AmplifyAppId": "d2qhlv6lwn049c"
+    }
+  },
+  "hosting": {
+    "amplifyhosting": {
+      "service": "amplifyhosting",
+      "providerPlugin": "awscloudformation",
+      "type": "manual",
+      "providerMetadata": {
+        "s3TemplateURL": "https://s3.amazonaws.com/amplify-boyals-dev-d6d6b-deployment/amplify-cfn-templates/hosting/amplifyhosting-template.json",
+        "logicalId": "hostingamplifyhosting"
+      },
+      "lastPushTimeStamp": "2025-11-17T15:39:48.672Z",
+      "output": {},
+      "lastPushDirHash": "4HXSZ4L60VnEvTu5VP6Ha3oeaMY="
+    }
+  },
+  "function": {
+    "apihandler": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda",
+      "lastBuildTimeStamp": "2025-11-15T13:24:20.000Z",
+      "lastBuildType": "PROD",
+      "lastPackageTimeStamp": "2025-11-15T13:24:20.044Z",
+      "distZipFilename": "apihandler-32546b4e745456396861-build.zip",
+      "s3Bucket": {
+        "deploymentBucketName": "amplify-boyals-dev-d6d6b-deployment",
+        "s3Key": "amplify-builds/apihandler-32546b4e745456396861-build.zip"
+      },
+      "providerMetadata": {
+        "s3TemplateURL": "https://s3.amazonaws.com/amplify-boyals-dev-d6d6b-deployment/amplify-cfn-templates/function/apihandler-cloudformation-template.json",
+        "logicalId": "functionapihandler"
+      },
+      "lastPushTimeStamp": "2025-11-17T15:39:48.673Z",
+      "output": {
+        "LambdaExecutionRoleArn": "arn:aws:iam::793872272814:role/boyalsLambdaRole56e415c7-dev",
+        "Region": "us-east-1",
+        "Arn": "arn:aws:lambda:us-east-1:793872272814:function:apihandler-dev",
+        "Name": "apihandler-dev",
+        "LambdaExecutionRole": "boyalsLambdaRole56e415c7-dev"
+      },
+      "lastPushDirHash": "FlXVqhdJOQT45fbCQMmQXUMPwD0="
+    }
+  }
+}
