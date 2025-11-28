@@ -1,9 +1,12 @@
 {
-  "hosting": {
-    "S3AndCloudFront": {
+  "function": {
+    "apihandler": {
+      "build": true,
       "providerPlugin": "awscloudformation",
-      "service": "S3AndCloudFront"
-    },
+      "service": "Lambda"
+    }
+  },
+  "hosting": {
     "amplifyhosting": {
       "providerPlugin": "awscloudformation",
       "service": "amplifyhosting",
@@ -11,6 +14,22 @@
     }
   },
   "parameters": {
+    "AMPLIFY_function_apihandler_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "apihandler"
+        }
+      ]
+    },
+    "AMPLIFY_function_apihandler_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "apihandler"
+        }
+      ]
+    },
     "AMPLIFY_hosting_amplifyhosting_appId": {
       "usedBy": [
         {

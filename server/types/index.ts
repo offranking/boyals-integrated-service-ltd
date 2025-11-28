@@ -1,59 +1,52 @@
-export type Page = 
-  | 'home' 
-  | 'about' 
-  | 'services' 
-  | 'serviceDetail' 
-  | 'gallery' 
-  | 'products' 
-  | 'productDetail' 
-  | 'booking' 
-  | 'contact';
+[13:22, 11/15/2025] Cortouch Media: const mysql = require("mysql2/promise");
 
-// API Response Types
-export interface ApiResponse<T> {
-  success: boolean;
-  data: T;
-  message?: string;
-}
+exports.handler = async () => {
+  try {
+    const connection = await mysql.createConnection({
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      port: Number(process.env.DB_PORT),
+    });
 
-// Database Interfaces (what your backend returns)
-export interface DbService {
-  id: number;
-  title: string;
-  description: string;
-  price: number;
-  duration?: string;
-  category: string;
-  status: string;
-  imageUrl?: string;
-  features?: string;
-  createdAt: string;
-  updatedAt: string;
-}
+    const [rows] = await connection.execute("SELECT 1 AS test");
 
-export interface DbProduct {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  imageUrl?: string;
-  stock: number;
-  status: string;
-  brand?: string;
-  category: string;
-  specs?: string;
-  createdAt: string;
-  updatedAt: string;
-}
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ success: true, rows }),
+    };
 
-export interface DbTestimonial {
-  id: number;
-  customerName: string;
-  position?: string;
-  company?: string;
-  content: string;
-  rating: number;
-  imageUrl?: string;
-  status: string;
-  createdAt: string;
-}
+  } catch (err) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: err.message }),
+    };
+  }
+};
+[13:26, 11/15/2025] Cortouch Media: import mysql from "mysql2/promise";
+
+export const handler = async () => {
+  try {
+    const connection = await mysql.createConnection({
+      host: process.env.DB_HOST!,
+      user: process.env.DB_USER!,
+      password: process.env.DB_PASSWORD!,
+      database: process.env.DB_NAME!,
+      port: Number(process.env.DB_PORT),
+    });
+
+    const [rows] = await connection.execute("SELECT 1 AS test");
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ success: true, rows }),
+    };
+
+  } catch (err: any) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: err.message }),
+    };
+  }
+};

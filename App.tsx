@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { GoogleGenAI, Chat } from '@google/genai';
 
-const API_BASE_URL = 'http://localhost:3001/api';
+const API_BASE_URL = 'https://xh5bjkme0d.execute-api.us-east-1.amazonaws.com/Dev';
 
 // ~~~ TYPE DEFINITIONS ~~~
 interface AppState {

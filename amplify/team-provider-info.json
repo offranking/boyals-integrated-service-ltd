@@ -16,8 +16,13 @@
         "amplifyhosting": {
           "appId": "d2qhlv6lwn049c",
           "type": "manual"
-        },
-        "S3AndCloudFront": {}
+        }
+      },
+      "function": {
+        "apihandler": {
+          "deploymentBucketName": "amplify-boyals-dev-d6d6b-deployment",
+          "s3Key": "amplify-builds/apihandler-32546b4e745456396861-build.zip"
+        }
       }
     }
   }
